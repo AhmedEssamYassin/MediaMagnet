@@ -162,6 +162,26 @@ class SettingsManager:
         return cls.setSetting('theme', theme)
     
     @classmethod
+    def getMaxConcurrentDownloads(cls) -> int:
+        """Get max concurrent downloads limit"""
+        return int(cls.getSetting('max_concurrent_downloads', 3))
+    
+    @classmethod
+    def setMaxConcurrentDownloads(cls, count: int) -> bool:
+        """Set max concurrent downloads limit"""
+        return cls.setSetting('max_concurrent_downloads', max(1, min(10, int(count))))
+    
+    @classmethod
+    def getMaxConcurrentParts(cls) -> int:
+        """Get maximum concurrent connection slices per video"""
+        return int(cls.getSetting('max_concurrent_parts', 8))
+        
+    @classmethod
+    def setMaxConcurrentParts(cls, count: int) -> bool:
+        """Set maximum concurrent parts (1-16)"""
+        return cls.setSetting('max_concurrent_parts', max(1, min(16, int(count))))
+    
+    @classmethod
     def exportSettings(cls, filepath: str) -> bool:
         """Export settings to a file"""
         try:

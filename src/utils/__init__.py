@@ -15,4 +15,4 @@ __all__ = [
 ]
 
 from .asset_loader import AssetLoader, loadConfig, loadTranslations, getTranslation
-from .settings_manager import SettingsManager, loadSettings, saveSettings, getSetting, setSetting  # ADD THIS
+from .settings_manager import SettingsManager, loadSettings, saveSettings, getSetting, setSetting
