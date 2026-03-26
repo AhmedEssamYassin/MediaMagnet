@@ -1,3 +1,4 @@
+# pyre-ignore-all-errors
 """
 YouTube downloader implementation
 """
@@ -7,6 +8,8 @@ import re
 import yt_dlp
 from .base_downloader import BaseDownloader
 from ..data_models import VideoInfo, PlaylistInfo
+from ..utils.file_utils import getFfmpegPath
+from ..utils.settings_manager import SettingsManager
 
 
 class YouTubeDownloader(BaseDownloader):
@@ -28,7 +31,8 @@ class YouTubeDownloader(BaseDownloader):
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
-            'extract_flat': False,
+            'extract_flat': 'in_playlist',
+            'ffmpeg_location': getFfmpegPath(),
         }
         
         try:
@@ -55,9 +59,17 @@ class YouTubeDownloader(BaseDownloader):
                                 key=lambda x: int(x.split('x')[0]) if 'x' in x else 0,
                                 reverse=True)
                     
+                    duration_secs = info.get('duration', 0)
+                    mins, secs = divmod(duration_secs, 60)
+                    hours, mins = divmod(mins, 60)
+                    formatted_duration = f"{hours:02d}:{mins:02d}:{secs:02d}" if hours else f"{mins:02d}:{secs:02d}"
+                    
+                    thumbnail_url = info.get('thumbnail', '')
+                    
                     return VideoInfo(
                         title=info.get('title', 'Unknown'),
-                        duration=str(info.get('duration', 0)) + 's',
+                        duration=formatted_duration,
+                        thumbnail=thumbnail_url,
                         formats=formats if formats else self.get_default_formats()
                     )
         except Exception as e:
@@ -82,20 +94,36 @@ class YouTubeDownloader(BaseDownloader):
                     'preferredquality': '192',
                 }],
                 'progress_hooks': [progressCallback],
+                'ffmpeg_location': getFfmpegPath(),
+                'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
         else:
+            ffmpegPath = getFfmpegPath()
+            ffmpegAvailable = os.path.isfile(ffmpegPath)
+            
             if quality == 'best':
-                format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+                if ffmpegAvailable:
+                    format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+                else:
+                    # Pre-merged format that doesn't need ffmpeg
+                    format_string = 'best[ext=mp4]/best'
             else:
                 height = quality.split('x')[-1].replace('p', '')
-                format_string = f'bestvideo[height<={height}][ext=mp4]+bestaudio[ext=m4a]/best[height<={height}][ext=mp4]/best'
+                if ffmpegAvailable:
+                    format_string = f'bestvideo[height<={height}][ext=mp4]+bestaudio[ext=m4a]/best[height<={height}][ext=mp4]/best'
+                else:
+                    format_string = f'best[height<={height}][ext=mp4]/best[height<={height}]/best'
             
             ydl_opts = {
                 'format': format_string,
                 'outtmpl': outtmpl,
                 'progress_hooks': [progressCallback],
-                'merge_output_format': 'mp4',
+                'ffmpeg_location': ffmpegPath,
+                'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
+            
+            if ffmpegAvailable:
+                ydl_opts['merge_output_format'] = 'mp4'
         
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:

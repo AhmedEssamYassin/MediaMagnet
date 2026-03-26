@@ -6,7 +6,8 @@ Supports: posts, reels, and stories
 import re
 import yt_dlp
 from .base_downloader import BaseDownloader
-from ..data_models import VideoInfo
+from ..data_models import VideoInfo, PlaylistInfo
+from ..utils.settings_manager import SettingsManager
 
 
 class InstagramDownloader(BaseDownloader):
@@ -65,6 +66,7 @@ class InstagramDownloader(BaseDownloader):
         base_opts = {
             'outtmpl': outtmpl,
             'progress_hooks': [progressCallback],
+            'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             'nocheckcertificate': True,
         }
         
@@ -88,15 +90,13 @@ class InstagramDownloader(BaseDownloader):
     def _formatDuration(self, seconds):
         """Convert seconds to readable duration"""
         if not seconds:
-            return "Unknown"
+            return "00:00"
         minutes, secs = divmod(int(seconds), 60)
         hours, minutes = divmod(minutes, 60)
         if hours > 0:
-            return f"{hours}h {minutes}m {secs}s"
-        elif minutes > 0:
-            return f"{minutes}m {secs}s"
+            return f"{hours:02d}:{minutes:02d}:{secs:02d}"
         else:
-            return f"{secs}s"
+            return f"{minutes:02d}:{secs:02d}"
     
     def _getFormatString(self, quality):
         """Convert quality to yt-dlp format string"""

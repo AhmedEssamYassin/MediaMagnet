@@ -7,6 +7,7 @@ import re
 import yt_dlp
 from .base_downloader import BaseDownloader
 from ..data_models import VideoInfo
+from ..utils.settings_manager import SettingsManager
 
 
 class FacebookDownloader(BaseDownloader):
@@ -47,9 +48,16 @@ class FacebookDownloader(BaseDownloader):
                                key=lambda x: int(x.replace('p', '')),
                                reverse=True)
                 
+                # Format duration correctly
+                duration_secs = info.get('duration') or 0
+                mins, secs = divmod(int(duration_secs), 60)
+                hours, mins = divmod(mins, 60)
+                formatted_duration = f"{hours:02d}:{mins:02d}:{secs:02d}" if hours > 0 else f"{mins:02d}:{secs:02d}"
+
                 return VideoInfo(
                     title=info.get('title', 'Facebook Video'),
-                    duration=str(info.get('duration', 0)) + 's',
+                    duration=formatted_duration,
+                    thumbnail=info.get('thumbnail', ''),
                     formats=formats if formats else ['best', '720p', '480p', '360p']
                 )
         except Exception as e:
@@ -73,6 +81,7 @@ class FacebookDownloader(BaseDownloader):
                     'preferredquality': '192',
                 }],
                 'progress_hooks': [progressCallback],
+                'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
         else:
             if quality == 'best':
@@ -85,6 +94,7 @@ class FacebookDownloader(BaseDownloader):
                 'format': format_string,
                 'outtmpl': outtmpl,
                 'progress_hooks': [progressCallback],
+                'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
         
         try:
