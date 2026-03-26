@@ -12,6 +12,10 @@ __pycache__/
 # VSCode
 .vscode/
 
+# FFmpeg
+ffmpeg.exe
+ffprobe.exe
+
 # Distribution / packaging
 .Python
 build/
