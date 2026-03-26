@@ -1,38 +1,59 @@
-# Video Downloader Pro - Modular Structure compliant with SOLID principles and Design patterns 
+# Video Downloader Pro — Modular Architecture with SOLID Principles & Design Patterns
 
-> A robust, unified desktop application for downloading media from major platforms (YouTube, Facebook, Instagram, TikTok, X) while serving as a practical reference implementation of SOLID principles and Design Patterns in Python. By leveraging the Open/Closed Principle through a modular Strategy and Factory pattern architecture, Video Downloader Pro ensures that support for new platforms can be added as isolated plugins without modifying existing code. The result is a highly maintainable, scalable tool that delivers a modern, asynchronous user experience without the technical debt common in multi-platform scrapers.
+> A robust, unified desktop application for downloading media from major platforms (YouTube, Facebook, Instagram, TikTok, X) while serving as a practical reference implementation of SOLID principles and Design Patterns in Python. Built on a modern **PyWebView + HTML/CSS/JS** frontend with an event-driven Python backend, Video Downloader Pro features live download telemetry, concurrent fragment acceleration, persistent settings, and a fully functional download history — all wrapped in a sleek multi-themed interface.
 
 ## Key Features
 
 ### Platform Support
-- **YouTube** - Videos, playlists, quality selection
-- **Facebook** - Public videos and posts
-- **Instagram** - Reels, posts, stories
-- **TikTok** - Videos and audio from photo posts
-- **Twitter/X** - Video tweets
+- **YouTube** — Videos, playlists, quality selection
+- **Facebook** — Public videos and posts
+- **Instagram** — Reels, posts, stories
+- **TikTok** — Videos and audio from photo posts
+- **Twitter/X** — Video tweets
 
 ### Download Options
-- **Video Formats** - MP4 with quality selection (best, 1080p, 720p, 480p, 360p)
-- **Audio Extraction** - MP3 format with 192kbps quality
-- **Custom Naming** - Edit video title before downloading
-- **Flexible Output** - Choose download location with quick folder access
+- **Video Formats** — MP4 with quality selection (best, 1080p, 720p, 480p, 360p)
+- **Audio Extraction** — MP3 format with 192kbps quality
+- **Custom Naming** — Edit video title before downloading
+- **Flexible Output** — Choose download location with quick folder access
+- **Concurrent Fragment Downloads** — Multi-part connection slicing (1–16 parts per video) for significantly faster downloads on supported streams
 
 ### User Experience
-- **Modern Dark Theme** - Eye-friendly interface with smooth animations
-- **Progress Tracking** - Real-time download progress with visual feedback
-- **Download History** - View, search, and manage past downloads
-- **Re-download** - Easy re-download from history
-- **Desktop Notifications** - Get notified when downloads complete
-- **Auto-Updater** - Seamless background version checking and self-updating executable replacement.
-- **URL Detection** - Automatic platform detection and validation
+- **Modern Dark/Light Theme** — Toggle between eye-friendly themes with smooth transitions
+- **Live Telemetry** — Real-time download speed (MB/s, KB/s) and ETA countdown on every active download card
+- **Progress Tracking** — Visual progress bars with percentage indicators
+- **Download History** — View, delete individual entries, and re-download from history
+- **Graceful Cancellation** — Cancel downloads cleanly without false error notifications
+- **Desktop Notifications** — Get notified when downloads complete or fail
+- **Auto-Updater** — Seamless background version checking and self-updating executable replacement
+- **URL Detection** — Automatic platform detection and validation
+- **Persistent Settings** — All preferences (theme, paths, concurrency, language) saved across sessions
+- **Skeleton Loading** — Premium loading experience instead of blank screens on startup
 
 ### Technical Highlights
-- **Asynchronous Downloads** - Non-blocking UI during downloads
-- **Modular Architecture** - SOLID principles and design patterns
-- **Extensible** - Easy to add new platforms without breaking existing code
-- **Error Handling** - Comprehensive error messages and recovery
-- **Smart String Sanitization** - Automatically strips bidirectional text, emojis, and invalid characters from titles to guarantee Windows file-system compatibility.
-- **Windows API Safeguards** - Implements defensive truncation for desktop notifications to prevent thread crashes caused by Windows API (`NOTIFYICONDATAW`) character limits.
+- **Event-Driven Architecture** — Decoupled backend-to-frontend communication via `EventEmitter`
+- **PyWebView Bridge** — Native Python ↔ JavaScript API bridge for seamless cross-layer calls
+- **Asynchronous Downloads** — `ThreadPoolExecutor`-based non-blocking concurrent downloads
+- **Modular Architecture** — SOLID principles with Strategy + Factory patterns
+- **Extensible** — Add new platforms without modifying existing code (Open/Closed Principle)
+- **Smart String Sanitization** — Strips bidirectional text, emojis, and invalid characters for Windows file-system compatibility
+- **Windows API Safeguards** — Defensive truncation for desktop notifications to prevent `NOTIFYICONDATAW` character limit crashes
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | HTML5 / CSS3 / JavaScript | UI rendering, animations, dark/light themes |
+| **UI Runtime** | [PyWebView](https://pywebview.flowrl.com/) | Native window with embedded web engine |
+| **Backend** | Python 3.12+ | Business logic, download orchestration |
+| **Download Engine** | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Multi-platform video extraction & download |
+| **Media Processing** | [FFmpeg](https://ffmpeg.org/) | Audio extraction, video/audio stream merging |
+| **Notifications** | [plyer](https://github.com/kivy/plyer) | Cross-platform desktop notifications |
+| **Packaging** | [PyInstaller](https://pyinstaller.org/) | Single-file `.exe` distribution |
+| **CI/CD** | GitHub Actions | Automated build, artifact upload, and release creation |
+
 ---
 
 ## Architecture Overview
@@ -42,44 +63,50 @@
 
 ### Separation of Concerns + SOLID Principles
 
-1. **Presentation Layer** (`ui/`)
-   - `gui.py` - Main application window and user interactions
-   - `history_view.py` - Download history management window
-   - `custom_widgets.py` - Reusable UI components (ModernButton, ModernEntry, etc.)
-   - `theme.py` - Centralized styling and color scheme
-   - **No business logic** - Pure presentation code
+1. **Presentation Layer** (`src/web/` + `src/api/`)
+   - `index.html` — Main application layout, modals (settings, history, playlist)
+   - `css/style.css` — Design system with CSS variables, dark/light theme tokens
+   - `js/main.js` — Frontend logic, event listeners, dynamic card rendering
+   - `webview_api.py` — Python ↔ JS bridge exposing backend methods to the frontend
+   - **No business logic** — Pure presentation and API routing
 
-2. **Business Logic Layer** (`core/`)
-   - `download_controller.py` - Orchestrates downloads, manages state
-   - Handles threading for non-blocking operations
-   - Coordinates between UI and services
-   - **Separation** - No UI code, no direct platform logic
+2. **Business Logic Layer** (`src/core/`)
+   - `download_controller.py` — Orchestrates downloads, manages job state, parses telemetry
+   - `download_job.py` — Job data model with status, progress, speed, ETA tracking
+   - `download_manager.py` — Facade delegating to the correct platform downloader
+   - `events.py` — `EventEmitter` + `EventType` enum for decoupled communication
+   - **Separation** — No UI code, no direct platform logic
 
-3. **Service Layer** (`services/`)
-   - `history_service.py` - Persistent download history (JSON storage)
-   - `notification_service.py` - Desktop notifications via plyer
-   - `update_service.py` - Thread-safe application self-updating, handling PyInstaller temporary environment cleanup and executable hot-swapping.
-   - **Abstraction** - Platform-independent services
+3. **Service Layer** (`src/services/`)
+   - `history_service.py` — Persistent download history (JSON file storage)
+   - `notification_service.py` — Desktop notifications via plyer
+   - `update_service.py` — Thread-safe self-updating with PyInstaller environment cleanup
+   - **Abstraction** — Platform-independent services
 
-4. **Download Strategy Layer** (`downloaders/`) - **OCP Implementation** ⭐
-   - `base_downloader.py` - Abstract contract defining downloader interface
-   - Platform implementations - Each platform in isolated file
-   - `downloader_factory.py` - Automatic platform detection and selection
-   - **Key Benefit** - Add platforms without modifying existing code
+4. **Download Strategy Layer** (`src/downloaders/`) — **OCP Implementation** ⭐
+   - `base_downloader.py` — Abstract contract defining the downloader interface
+   - Platform implementations — Each platform in an isolated file
+   - `downloader_factory.py` — Automatic platform detection and selection
+   - **Key Benefit** — Add platforms without modifying existing code
 
-5. **Data Layer** (`data_models/`)
-   - `models.py` - Data structures with validation
-     - `VideoInfo` - Video metadata
-     - `PlaylistInfo` - Playlist information
-     - `DownloadConfig` - Configuration with validation
+5. **Utilities & Configuration** (`src/utils/`)
+   - `settings_manager.py` — Persistent user preferences (theme, paths, concurrency, language)
+   - `asset_loader.py` — Configuration and translation loading
+   - `file_utils.py` — FFmpeg path resolution, filename sanitization
+
+6. **Data Layer** (`src/data_models/`)
+   - `models.py` — Data structures with validation
+     - `VideoInfo` — Video metadata (title, duration, thumbnail, formats)
+     - `PlaylistInfo` — Playlist information with video list
+     - `DownloadConfig` — Configuration with path/quality/format validation
 
 ### Data Flow Diagram
 ```
-User Input (URL) 
+User Input (URL)
     ↓
-GUI (Presentation Layer)
+Frontend (HTML/CSS/JS) ──── PyWebView Bridge ──── WebViewApi
     ↓
-DownloadController (Business Logic)
+DownloadController (Business Logic + EventEmitter)
     ↓
 DownloadManager (Facade)
     ↓
@@ -87,40 +114,44 @@ DownloaderFactory (Factory Pattern)
     ↓
 Platform Downloader (Strategy Pattern)
     ↓
-yt-dlp (External Library)
+yt-dlp (External Library) ──── FFmpeg (Stream Merging)
     ↓
-Downloaded File + History Entry
+Downloaded File + History Entry + Desktop Notification
 ```
+
+---
 
 ## SOLID Principles Applied
 
-### S - Single Responsibility Principle
+### S — Single Responsibility Principle
 Each module has one clear purpose:
-- GUI only handles presentation
-- Controller only manages business logic
+- Frontend only handles presentation and user interaction
+- Controller only manages business logic and job state
 - Each downloader only handles one platform
 
-### O - Open/Closed Principle ⭐
+### O — Open/Closed Principle ⭐
 **Open for extension, closed for modification:**
 ```python
-# Adding a new platform (e.g., Instagram)
-class InstagramDownloader(BaseDownloader):
+# Adding a new platform (e.g., Reddit)
+class RedditDownloader(BaseDownloader):
     def canHandle(self, url): 
-        return "instagram.com" in url
+        return "reddit.com" in url
     # Implement required methods
     
-# Register it - NO OTHER CODE CHANGES NEEDED!
-DownloaderFactory.registerDownloader(InstagramDownloader())
+# Register it — NO OTHER CODE CHANGES NEEDED!
+DownloaderFactory.registerDownloader(RedditDownloader())
 ```
 
-### L - Liskov Substitution Principle
+### L — Liskov Substitution Principle
 Any `BaseDownloader` implementation can be substituted for another without breaking the application
 
-### I - Interface Segregation Principle
+### I — Interface Segregation Principle
 Clean, minimal abstract interface in `BaseDownloader` with only necessary methods
 
-### D - Dependency Inversion Principle
-High-level modules (GUI, Controller) depend on abstractions (DownloadManager interface), not concrete implementations
+### D — Dependency Inversion Principle
+High-level modules (WebViewApi, Controller) depend on abstractions (DownloadManager interface), not concrete implementations
+
+---
 
 ## Open/Closed Principle Deep Dive
 
@@ -158,110 +189,101 @@ User enters URL → DownloadManager → Factory selects downloader
                                          ↓
                     ┌────────────────────┴────────────────────┐
                     ↓                    ↓                     ↓
-            YouTubeDownloader    FacebookDownloader    [other Downloaders]
+            YouTubeDownloader    FacebookDownloader    [Other Downloaders]
                     
 Each downloader inherits from BaseDownloader (abstract)
 ```
 
 ### Benefits
 
-1. **Zero Risk**: Adding platforms can't break existing ones
-2. **Parallel Development**: Different developers work on different platforms
-3. **Easy Testing**: Test each platform independently
-4. **No Code Duplication**: Shared interface via base class
-5. **Plugin Architecture**: Platform implementations are like plugins
+1. **Zero Risk** — Adding platforms can't break existing ones
+2. **Parallel Development** — Different developers work on different platforms
+3. **Easy Testing** — Test each platform independently
+4. **No Code Duplication** — Shared interface via base class
+5. **Plugin Architecture** — Platform implementations are like plugins
+
+---
 
 ## Setup Instructions
 
-### 1. Install `pipreqs` library (if not installed already)
-
-### 2. Create requirements.txt (if not created already)
+### 1. Clone the Repository
 ```bash
-pipreqs freeze > requirements.txt
+git clone https://github.com/AhmedEssamYassin/Video-Downloader-Pro.git
+cd Video-Downloader-Pro
 ```
 
-### 4. Install Dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the Application
+### 3. Run the Application
 ```bash
 python main.py
 ```
+
+---
 
 ## 🔧 Module Dependencies
 
 ```
 main.py (Application Entry Point)
-└── src.ui.gui.py (Main Application Window)
-    ├── src.ui.theme.py
-    ├── src.ui.custom_widgets.py
-    ├── src.ui.history_view.py
-    │   ├── src.services.history_service.py
-    │   └── (Imports custom_widgets, theme)
-    ├── src.core.download_controller.py (Business Logic Orchestrator)
-    │   ├── src.core.download_manager.py (Facade)
-    │   │   └── src.downloaders.downloader_factory.py (Factory Pattern)
-    │   │       ├── src.downloaders.base_downloader.py (Abstract Interface)
-    │   │       │   └── src.data_models.models.py
-    │   │       ├── src.downloaders.youtube_downloader.py (Strategy)
-    │   │       ├── src.downloaders.facebook_downloader.py (Strategy)
-    │   │       ├── src.downloaders.instagram_downloader.py (Strategy)
-    │   │       ├── src.downloaders.tiktok_downloader.py (Strategy)
-    │   │       └── src.downloaders.twitter_downloader.py (Strategy)
-    │   ├── src.services.history_service.py
-    │   ├── src.services.notification_service.py
-    │   ├── src.services.update_service.py
-    │   ├── src.utils.settings_manager.py
-    │   │   └── src.utils.asset_loader.py
-    │   ├── src.utils.file_utils.py (Sanitization)
-    │   └── src.data_models.models.py
-    └── src.utils.asset_loader.py (For icons/images)
+├── pywebview (Native Window)
+├── src.api.webview_api.py (Python ↔ JS Bridge)
+│   ├── src.core.download_controller.py (Business Logic Orchestrator)
+│   │   ├── src.core.download_manager.py (Facade)
+│   │   │   └── src.downloaders.downloader_factory.py (Factory Pattern)
+│   │   │       ├── src.downloaders.base_downloader.py (Abstract Interface)
+│   │   │       │   └── src.data_models.models.py
+│   │   │       ├── src.downloaders.youtube_downloader.py (Strategy)
+│   │   │       ├── src.downloaders.facebook_downloader.py (Strategy)
+│   │   │       ├── src.downloaders.instagram_downloader.py (Strategy)
+│   │   │       ├── src.downloaders.tiktok_downloader.py (Strategy)
+│   │   │       └── src.downloaders.twitter_downloader.py (Strategy)
+│   │   ├── src.core.download_job.py (Job State Model)
+│   │   ├── src.core.events.py (EventEmitter + EventType)
+│   │   ├── src.services.history_service.py
+│   │   ├── src.services.notification_service.py
+│   │   └── src.utils.file_utils.py (Sanitization)
+│   └── src.utils.settings_manager.py (Persistent Preferences)
+│       └── src.utils.asset_loader.py
+└── src.web/ (Frontend)
+    ├── index.html (Layout + Modals)
+    ├── css/style.css (Design System)
+    └── js/main.js (UI Logic + Event Handlers)
 ```
+
+---
 
 ## 🎯 Benefits of This Architecture
 
 ### Scalability via Open/Closed Principle
-- **Easy to add platforms**: Create one new file, no modifications needed
-- **Independent modules**: Changes in one platform don't affect others
-- **Testing friendly**: Each platform can be tested independently
-- **Plugin-like architecture**: Platforms are self-contained implementations
+- **Easy to add platforms** — Create one new file, no modifications needed
+- **Independent modules** — Changes in one platform don't affect others
+- **Testing friendly** — Each platform can be tested independently
+- **Plugin-like architecture** — Platforms are self-contained implementations
 
 ### Maintainability
-- **Clear responsibilities**: Each module has a single, well-defined purpose
-- **Easy to debug**: Issues can be isolated to specific modules/platforms
-- **Code reusability**: Widgets, components, and base classes are reused
-- **No regression risk**: Adding features can't break existing platforms
+- **Clear responsibilities** — Each module has a single, well-defined purpose
+- **Easy to debug** — Issues can be isolated to specific modules/platforms
+- **Code reusability** — Components and base classes are reused across layers
+- **No regression risk** — Adding features can't break existing platforms
 
 ### Extensibility
-- **Platform support**: YouTube, Facebook, Instagram, TikTok, Twitter, etc.
-- **Theme switching**: Simple to implement multiple themes
-- **Custom widgets**: Easy to create and integrate new UI components
-- **Format support**: Easy to add new output formats (WebM, AVI, etc.)
+- **Platform support** — YouTube, Facebook, Instagram, TikTok, Twitter — and more via OCP
+- **Theme switching** — Dark/Light toggle with CSS variables
+- **Format support** — Easy to add new output formats (WebM, AVI, etc.)
+- **Settings expansion** — Add new preferences without refactoring
 
-## Future Enhancement Ideas
+---
 
-### Potential Platform Additions (OCP Makes This Easy!)
-
-2. **Feature Enhancements**
-   - `config_manager.py`: User preferences and settings persistence
-   - `subtitle_downloader.py`: Subtitle/caption support
-   - `scheduler.py`: Scheduled downloads
-
-3. **Architecture Improvements**
-   - Dependency injection for better testing
-   - Event system for module communication
-   - Configuration file support (JSON/YAML)
-   - Logging system implementation
-   - Plugin loader for dynamic platform discovery
-
-### Adding a New Platform (Template)
+## Adding a New Platform (Template)
 
 ```python
 # new_platform_downloader.py
-from base_downloader import BaseDownloader
-from models import VideoInfo
+from .base_downloader import BaseDownloader
+from ..data_models import VideoInfo
+from ..utils.settings_manager import SettingsManager
 import yt_dlp
 import re
 
@@ -284,70 +306,54 @@ class NewPlatformDownloader(BaseDownloader):
             return VideoInfo(
                 title=info.get('title', 'NewPlatform Video'),
                 duration=str(info.get('duration', 0)) + 's',
+                thumbnail=info.get('thumbnail', ''),
                 formats=['best', '1080p', '720p', '480p']
             )
     
-    def downloadVideo(self, url: str, outputPath: str, quality: str, 
-                      formatType: str, progressCallback):
-        """Download video"""
-        # Platform-specific download logic
+    def downloadVideo(self, url, outputPath, quality, 
+                      formatType, progressCallback, title=None):
+        """Download video with concurrent fragment support"""
         ydl_opts = {
             'format': 'best',
             'outtmpl': f'{outputPath}/%(title)s.%(ext)s',
-            'progress_hooks': [progressCallback]
+            'progress_hooks': [progressCallback],
+            'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
     
     def getProviderName(self) -> str:
-        """Get provider name"""
         return "NewPlatform"
 
 # Register in downloader_factory.py:
 # DownloaderFactory.registerDownloader(NewPlatformDownloader())
 ```
 
-That's it! One file = one new platform support! 
+That's it! One file = one new platform support!
 
-## Usage Example
+---
 
-```python
-# Example 1: Using the controller independently
-from controller import DownloadController
-from models import DownloadConfig
+## Deployment
 
-controller = DownloadController()
-
-# Fetch video info (works for YouTube, Facebook, etc.)
-def onSuccess(info):
-    print(f"Title: {info.title}")
-    print(f"Duration: {info.duration}")
-
-controller.fetch_video_info(
-    url="https://youtube.com/watch?v=...",  # or facebook.com/...
-    onSuccess=onSuccess,
-    onError=lambda e: print(f"Error: {e}"),
-    onComplete=lambda: print("Done")
-)
-
-# Example 2: Using the factory directly
-from downloader_factory import DownloaderFactory
-
-url = "https://facebook.com/video/123"
-downloader = DownloaderFactory.getDownloader(url)
-if downloader:
-    print(f"Provider: {downloader.getProviderName()}")  # "Facebook"
-    video_info = downloader.getVideoInfo(url)
-    print(f"Title: {video_info.title}")
-
-# Example 3: Check if URL is supported
-from download_manager import DownloadManager
-
-if DownloadManager.isUrlSupported("https://tiktok.com/..."):
-    print("Supported!")
-else:
-    print("Not supported yet. Add TikTokDownloader!")
+### Local Build
+```bash
+python build.py
 ```
+Select option `1` for a single `.exe` file or option `2` for a directory build.
+
+### CI/CD (GitHub Actions)
+The project includes a fully automated build pipeline (`.github/workflows/build.yml`):
+- **Trigger** — Push a version tag (`v*`) or manual dispatch
+- **Process** — Installs dependencies, downloads FFmpeg, runs `build.py` in non-interactive mode
+- **Output** — Uploads `VideoDownloaderPro.exe` as a build artifact and creates a GitHub Release
+
+```bash
+# To trigger a release build:
+git tag v2.1.0
+git push origin v2.1.0
+```
+
+---
 
 ## 🔧 Troubleshooting
 
@@ -359,21 +365,21 @@ else:
 - Some platforms may block automated downloads
 
 **"FFmpeg not found" error**
-- Install FFmpeg: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
-- Add FFmpeg to your system PATH
+- Place `ffmpeg.exe` in the `assets/` folder
+- Or install FFmpeg system-wide and add to PATH: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
 
 **"Download failed" for Instagram/TikTok**
 - These platforms frequently change their API
 - Update yt-dlp: `pip install --upgrade yt-dlp`
 
 **Slow download speeds**
-- Check your internet connection
-- Some platforms throttle download speeds
+- Increase **Max Concurrent Parts** in Settings (up to 16) for multi-fragment acceleration
+- Some platforms throttle download speeds regardless of settings
 - Try different quality settings
 
 **Desktop notifications not working**
-- Install plyer: `pip install plyer`
-- On Linux, ensure notification-daemon is installed
+- Notifications require `plyer`: `pip install plyer`
+- On Linux, ensure `notification-daemon` is installed
 
 ---
 
@@ -385,49 +391,23 @@ else:
 | download_manager.py | ~150 | High | ❌ Hard to extend |
 | **Total** | **~150** | **High** | **Requires modification** |
 
-### After OCP (Modular - Downloaders Only)
+### After OCP (Modular — Current Architecture)
 | Module | Lines | Complexity | Purpose |
 |--------|-------|------------|---------|
 | base_downloader.py | ~70 | Low | Abstract contract |
-| youtube_downloader.py | ~120 | Medium | YouTube logic |
-| facebook_downloader.py | ~105 | Medium | Facebook logic |
-| instagram_downloader.py | ~100 | Medium | Instagram logic |
-| tiktok_downloader.py | ~150 | Medium | TikTok logic |
-| twitter_downloader.py | ~120 | Medium | Twitter/X logic |
+| youtube_downloader.py | ~135 | Medium | YouTube logic |
+| facebook_downloader.py | ~112 | Medium | Facebook logic |
+| instagram_downloader.py | ~105 | Medium | Instagram logic |
+| tiktok_downloader.py | ~155 | Medium | TikTok logic |
+| twitter_downloader.py | ~125 | Medium | Twitter/X logic |
 | downloader_factory.py | ~70 | Low | Provider selection |
 | download_manager.py | ~90 | Low | Facade |
-| **Total** | **~825** | **Low per file** | **✅ Just add files** |
-
-**Trade-off**: More code (~675 lines), but:
-- ✅ **5 platforms** vs 1-2 in monolithic
-- ✅ Each file is simple and focused (~100 lines each)
-- ✅ Zero risk when adding platforms
-- ✅ Parallel development possible
-- ✅ Easy to test individually
-- ✅ No if/else chains - clean architecture
-
-### Architecture Benefits
-
-**Code Distribution:**
-- 📊 **~1,170 lines (49%)** - UI/Presentation layer
-- 🎯 **~735 lines (31%)** - Download strategy (OCP)
-- ⚙️ **~290 lines (12%)** - Core logic & services
-- 📦 **~175 lines (8%)** - Data models & utilities
-
-The ~1,400-1,600 line increase buys us:
-- ✅ **5 platforms** with isolated implementations
-- ✅ **Complete UI** with history management
-- ✅ **Desktop notifications** and persistence
-- ✅ **SOLID principles** throughout
-- ✅ **Easy extensibility** - Add platforms in ~100 lines each
-- ✅ **Better testability** - Each module independently testable
-- ✅ **Team-friendly** - Multiple developers can work in parallel
-- ✅ **Maintainability** - Average ~135 lines per file (17 files)
+| **Total** | **~862** | **Low per file** | **✅ Just add files** |
 
 ### Scalability Analysis
 
 **Adding a new platform (e.g., Reddit):**
-- Monolithic: Modify 3-4 existing files, risk breaking 5 platforms
+- Monolithic: Modify 3–4 existing files, risk breaking 5 platforms
 - OCP: Create 1 new file (~100 lines), register in factory (1 line)
 
 **Bug in TikTok downloader:**
@@ -439,23 +419,19 @@ The ~1,400-1,600 line increase buys us:
 - OCP: Each developer owns a platform, parallel work with zero conflicts
 
 ---
-## Deployment
-
-**Use the `build.py` file and it will build the executable file directly using `PyInstaller`**
-```bash
-py build.py
-```
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ### Third-Party Libraries
 
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Video download engine
-- [ttkbootstrap](https://github.com/israel-dryer/ttkbootstrap) - Modern UI framework
-- [plyer](https://github.com/kivy/plyer) - Desktop notifications
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) — Video download engine
+- [PyWebView](https://pywebview.flowrl.com/) — Native desktop window with embedded web engine
+- [plyer](https://github.com/kivy/plyer) — Cross-platform desktop notifications
 - [Pillow](https://python-pillow.org/) - Image processing
+- [PyInstaller](https://pyinstaller.org/) — Executable packaging
+- [FFmpeg](https://ffmpeg.org/) — Audio/video stream processing
 
 ### Disclaimer
 
