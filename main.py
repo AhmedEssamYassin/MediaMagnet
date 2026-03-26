@@ -7,8 +7,6 @@ Supports: YouTube, Facebook, Instagram, TikTok (extensible to more platforms)
 
 import sys
 import os
-import ttkbootstrap as ttk
-from tkinter import messagebox
 
 def resourcePath(relativePath):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -43,34 +41,37 @@ def setupGlobalFfmpeg():
     if ffmpegPath:
         os.environ["PATH"] += os.pathsep + ffmpegPath
 
-from src.ui.gui import VideoDownloaderGUI
-from src.ui.theme import Theme  
+import webview
+from src.core.download_controller import DownloadController
+from src.api.webview_api import WebViewApi
 from src.utils import SettingsManager  
 
 def main():
     """Application entry point"""
     try:
-        savedTheme = SettingsManager.getTheme()  # Returns "dark" or "light"
+        savedTheme = SettingsManager.getTheme()  
     except:
-        savedTheme = "dark"  # Default to dark if SettingsManager not available
+        savedTheme = "dark"
 
-    Theme.setTheme(savedTheme)
-    # Create the main window using ttkbootstrap
-    ttkTheme = Theme.getTtkTheme(savedTheme)
-    root = ttk.Window(themename=ttkTheme)
+    controller = DownloadController()
+    api = WebViewApi(controller)
 
-    # Set the window icon
-    try:
-        iconPath = resourcePath("assets/images/icon.ico")
-        root.iconbitmap(iconPath)
-    except Exception:
-        print("Icon not found, skipping.")
+    html_path = resourcePath("src/web/index.html")
+
+    window = webview.create_window(
+        title="Video Downloader Pro",
+        url=html_path,
+        js_api=api,
+        width=1000,
+        height=750,
+        min_size=(800, 600),
+        background_color='#141726' if savedTheme == 'dark' else '#fafafa'
+    )
     
-    # Initialize the GUI
-    app = VideoDownloaderGUI(root)
-
-    # Start the main loop
-    root.mainloop()
+    api.set_window(window)
+    
+    # Start the webview application (blocking call)
+    webview.start(debug=False)
 
 
 if __name__ == "__main__":

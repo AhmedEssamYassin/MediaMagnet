@@ -8,15 +8,22 @@ from pathlib import Path
 import update_deps
 
 try:
-    import ttkbootstrap
+    import webview
     import yt_dlp
     from yt_dlp.extractor import extractors
 except ImportError as e:
     print(f"ERROR: Missing dependency: {e}")
-    print("Please install: pip install ttkbootstrap yt-dlp")
+    print("Please install: pip install pywebview yt-dlp")
     sys.exit(1)
 
 update_deps.updateAllDeps()    
+
+# --- Paths ---
+PROJECT_ROOT = Path(__file__).parent
+DIST_DIR = PROJECT_ROOT / "dist"
+BUILD_DIR = PROJECT_ROOT / "build"
+ASSETS_DIR = PROJECT_ROOT / "assets"
+UPDATER_PATH = PROJECT_ROOT / "updater.exe"
 
 def getProjectVersion():
     try:
@@ -33,12 +40,6 @@ VERSION_NUMBER = getProjectVersion()
 AUTHOR_NAME = "Ahmed Yassin"
 APP_DESCRIPTION = "Professional Video Downloader"
 
-# --- Paths ---
-PROJECT_ROOT = Path(__file__).parent
-DIST_DIR = PROJECT_ROOT / "dist"
-BUILD_DIR = PROJECT_ROOT / "build"
-ASSETS_DIR = PROJECT_ROOT / "assets"
-UPDATER_PATH = PROJECT_ROOT / "updater.exe"
 
 # --- Helper Functions ---
 
@@ -124,8 +125,9 @@ def createSpecFile():
     plyerHooks = getPlyerHooks()
     
     hiddenImports = [
-        'PIL._tkinter_finder',
-        'ttkbootstrap',
+        'webview',
+        'webview.platforms.winforms',
+        'clr',
         'yt_dlp',
         'requests',
         'packaging',
@@ -136,6 +138,7 @@ def createSpecFile():
 
     datas = [
         ('assets', 'assets'),
+        ('src/web', 'src/web'),
     ]
 
     if UPDATER_PATH.exists():
@@ -152,6 +155,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets', 'assets'),
+        ('src/web', 'src/web'),
     ],
     hiddenimports={hiddenImports},
     hookspath=[],
@@ -210,9 +214,9 @@ def getBaseArgs():
         f'--distpath={DIST_DIR}',
         f'--workpath={BUILD_DIR}',
         '--add-data', f'assets{os.pathsep}assets',
+        '--add-data', f'src/web{os.pathsep}src/web',
         '--collect-all', 'yt_dlp',
-        '--hidden-import', 'PIL._tkinter_finder',
-        '--hidden-import', 'ttkbootstrap',
+        '--collect-all', 'webview',
         '--hidden-import', 'requests',
         '--hidden-import', 'packaging',
         '--hidden-import', 'certifi',  
