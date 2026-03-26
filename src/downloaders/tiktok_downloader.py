@@ -27,16 +27,16 @@ class TikTokDownloader(BaseDownloader):
     
     def getVideoInfo(self, url: str) -> VideoInfo:
         """Fetch TikTok video/photo post information"""
-        is_photo_post = self._isPhotoPost(url)
+        isPhotoPostSet = self._isPhotoPost(url)
         
-        ydl_opts = {'quiet': True, 'no_warnings': True, 'nocheckcertificate': True}
+        ydlOpts = {'quiet': True, 'no_warnings': True, 'nocheckcertificate': True}
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 
                 # Check if it's a photo post with audio
-                if is_photo_post:
+                if isPhotoPostSet:
                     return VideoInfo(
                         title=info.get('title', 'TikTok Photo Post'),
                         duration=self._formatDuration(info.get('duration', 0)),
@@ -52,10 +52,10 @@ class TikTokDownloader(BaseDownloader):
                     formats=['best', '720p', '480p']
                 )
         except Exception as e:
-            error_msg = str(e)
+            errorMsg = str(e)
             
             # Better error handling
-            if "Unsupported URL" in error_msg:
+            if "Unsupported URL" in errorMsg:
                 raise Exception(
                     "This TikTok post cannot be processed.\n\n"
                     "If it's a photo post:\n"
@@ -65,15 +65,15 @@ class TikTokDownloader(BaseDownloader):
                     "• Make sure the link is valid and public"
                 )
             else:
-                raise Exception(f"Failed to fetch TikTok content: {error_msg}")
+                raise Exception(f"Failed to fetch TikTok content: {errorMsg}")
     
     def downloadVideo(self, url: str, outputPath: str, quality: str, 
                       formatType: str, progressCallback, title: str = None):
         """Download TikTok video or extract audio from photo posts"""
-        is_photo_post = self._isPhotoPost(url)
+        isPhotoPostSet = self._isPhotoPost(url)
         
         # For photo posts, force MP3 extraction
-        if is_photo_post and formatType != 'MP3':
+        if isPhotoPostSet and formatType != 'MP3':
             raise Exception(
                 "📸 This is a TikTok photo post (slideshow with music).\n\n"
                 "Photo posts cannot be downloaded as video.\n"
@@ -81,20 +81,20 @@ class TikTokDownloader(BaseDownloader):
                 "💡 Solution: Select 'Audio (MP3)' format and try again."
             )
         
-        ydl_opts = self._buildYdlOpts(outputPath, quality, formatType, progressCallback, is_photo_post, title)
+        ydlOpts = self._buildYdlOpts(outputPath, quality, formatType, progressCallback, isPhotoPostSet, title)
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 ydl.download([url])
         except Exception as e:
-            error_msg = str(e)
-            if "Unsupported URL" in error_msg and is_photo_post:
+            errorMsg = str(e)
+            if "Unsupported URL" in errorMsg and isPhotoPostSet:
                 raise Exception(
                     "Cannot download this TikTok photo post.\n\n"
                     "Try selecting MP3 format to extract the music."
                 )
             else:
-                raise Exception(f"TikTok download failed: {error_msg}")
+                raise Exception(f"TikTok download failed: {errorMsg}")
     
     def getProviderName(self) -> str:
         return "TikTok"
@@ -110,7 +110,7 @@ class TikTokDownloader(BaseDownloader):
         else:
             outtmpl = f'{outputPath}/%(title)s.%(ext)s'
 
-        base_opts = {
+        baseOpts = {
             'outtmpl': outtmpl,
             'progress_hooks': [progressCallback],
             'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
@@ -119,7 +119,7 @@ class TikTokDownloader(BaseDownloader):
         
         # For photo posts or MP3 format, extract audio
         if formatType == 'MP3' or is_photo_post:
-            base_opts.update({
+            baseOpts.update({
                 'format': 'bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -129,12 +129,12 @@ class TikTokDownloader(BaseDownloader):
             })
         else:
             # Regular video download
-            base_opts.update({
+            baseOpts.update({
                 'format': self._getFormatString(quality),
                 'merge_output_format': 'mp4',
             })
         
-        return base_opts
+        return baseOpts
     
     def _formatDuration(self, seconds):
         """Convert seconds to readable duration"""
@@ -149,11 +149,11 @@ class TikTokDownloader(BaseDownloader):
     
     def _getFormatString(self, quality):
         """Convert quality to yt-dlp format string"""
-        quality_map = {
+        qualityMap = {
             'best': 'bestvideo+bestaudio/best',
             '1080p': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
             '720p': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
             '480p': 'bestvideo[height<=480]+bestaudio/best[height<=480]',
             '360p': 'bestvideo[height<=360]+bestaudio/best[height<=360]',
         }
-        return quality_map.get(quality, 'bestvideo+bestaudio/best')
+        return qualityMap.get(quality, 'bestvideo+bestaudio/best')

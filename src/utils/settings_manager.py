@@ -47,9 +47,9 @@ class SettingsManager:
         if cls.SETTINGS_FILE.exists():
             try:
                 with open(cls.SETTINGS_FILE, 'r', encoding='utf-8') as f:
-                    user_settings = json.load(f)
+                    userSettings = json.load(f)
                     # Merge user settings over defaults
-                    settings.update(user_settings)
+                    settings.update(userSettings)
             except Exception as e:
                 print(f"Error loading user settings: {e}")
                 # Return defaults on error
@@ -182,11 +182,11 @@ class SettingsManager:
         return cls.setSetting('max_concurrent_parts', max(1, min(16, int(count))))
     
     @classmethod
-    def exportSettings(cls, filepath: str) -> bool:
+    def exportSettings(cls, filePath: str) -> bool:
         """Export settings to a file"""
         try:
             settings = cls.loadSettings()
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filePath, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=2, ensure_ascii=False)
             return True
         except Exception as e:
@@ -194,10 +194,10 @@ class SettingsManager:
             return False
     
     @classmethod
-    def importSettings(cls, filepath: str) -> bool:
+    def importSettings(cls, filePath: str) -> bool:
         """Import settings from a file"""
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filePath, 'r', encoding='utf-8') as f:
                 settings = json.load(f)
             return cls.saveSettings(settings)
         except Exception as e:

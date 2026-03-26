@@ -9,7 +9,7 @@ let currentFetchResult = null;
 window.triggerSettingsBrowse = async () => {
     try {
         const currentPath = document.getElementById('settingsDefaultPath').value || '';
-        const path = await window.pywebview.api.browse_directory(currentPath);
+        const path = await window.pywebview.api.browseDirectory(currentPath);
         if (path) {
             document.getElementById('settingsDefaultPath').value = path;
             document.getElementById('outputPath').value = path;
@@ -37,7 +37,7 @@ function initApp() {
     }, 300);
 
 
-    window.pywebview.api.get_settings().then(settings => {
+    window.pywebview.api.getSettings().then(settings => {
         if (settings.defaultPath) {
             outputPath.value = settings.defaultPath;
         }
@@ -58,13 +58,13 @@ function initApp() {
         const isDark = document.body.classList.toggle('dark-theme');
         document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
         document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
-        window.pywebview.api.save_theme(isDark ? 'dark' : 'light');
+        window.pywebview.api.saveTheme(isDark ? 'dark' : 'light');
     });
 
 
     document.getElementById('globalSettingsBtn').addEventListener('click', () => {
         console.log("Opening App Settings...");
-        window.pywebview.api.get_settings().then(settings => {
+        window.pywebview.api.getSettings().then(settings => {
             if (settings.defaultPath) document.getElementById('settingsDefaultPath').value = settings.defaultPath;
             if (settings.theme) document.getElementById('settingsTheme').value = settings.theme;
             if (settings.maxConcurrent) document.getElementById('maxConcurrentDownloads').value = settings.maxConcurrent;
@@ -112,7 +112,7 @@ function initApp() {
             return;
         }
         
-        window.pywebview.api.save_settings(maxConc, maxParts, langCode, noteEnabled, autoPathInfo, appTheme, defaultPath).then(res => {
+        window.pywebview.api.saveSettings(maxConc, maxParts, langCode, noteEnabled, autoPathInfo, appTheme, defaultPath).then(res => {
             if(res.success) {
                 // Apply theme visibly right away
                 if (appTheme === 'light') {
@@ -147,7 +147,7 @@ function initApp() {
 
     document.getElementById('clearHistoryBtn').addEventListener('click', async () => {
         if(confirm("Are you sure you want to clear your entire download history?")) {
-            const res = await window.pywebview.api.clear_history();
+            const res = await window.pywebview.api.clearHistory();
             if(res.success) {
                 historyListContainer.innerHTML = '';
                 historyListContainer.appendChild(emptyHistoryMsg);
@@ -159,7 +159,7 @@ function initApp() {
     });
 
     function loadHistory() {
-        window.pywebview.api.get_history().then(res => {
+        window.pywebview.api.getHistory().then(res => {
             if(res.success && res.history) {
                 renderHistory(res.history);
             }
@@ -207,7 +207,7 @@ function initApp() {
                     </div>
                 </div>
                 <div class="history-actions">
-                    <button class="btn icon-button-box" title="Open Folder Location" onclick="window.pywebview.api.open_path('${(item.outputPath || '').replace(/\\/g, '\\\\')}')">
+                    <button class="btn icon-button-box" title="Open Folder Location" onclick="window.pywebview.api.openPath('${(item.outputPath || '').replace(/\\/g, '\\\\')}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </button>
                     ${item.url && item.url !== 'playlist' ? `<button class="btn icon-button-box" title="Download Again" onclick="window.redownloadFromHistory('${item.url}')">⬇️</button>` : ''}
@@ -220,7 +220,7 @@ function initApp() {
 
     // Global helper for deleting a single history entry
     window.deleteHistoryEntry = async function(index) {
-        const res = await window.pywebview.api.remove_history_entry(index);
+        const res = await window.pywebview.api.removeHistoryEntry(index);
         if (res.success) {
             loadHistory(); // Refresh the list
         } else {
@@ -248,8 +248,8 @@ function initApp() {
     const qualitySelect = document.getElementById('qualitySelect');
 
     // Fetch version and init update UI
-    if (window.pywebview && window.pywebview.api && window.pywebview.api.get_app_version) {
-        window.pywebview.api.get_app_version().then(ver => {
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.getAppVersion) {
+        window.pywebview.api.getAppVersion().then(ver => {
             console.log("Current App Version:", ver);
             document.getElementById('appVersion').innerText = `Version: ${ver}`;
         }).catch(err => console.error("Failed to fetch version:", err));
@@ -272,7 +272,7 @@ function initApp() {
         updateStatus.innerText = 'Connecting to server...';
         
         try {
-            const res = await window.pywebview.api.check_for_updates();
+            const res = await window.pywebview.api.checkForUpdates();
             if (res.success) {
                 if (res.hasUpdate) {
                     updateStatus.innerHTML = `<span style="color: var(--accent); font-weight: 600;">Update Available: v${res.latestVersion}</span>`;
@@ -303,7 +303,7 @@ function initApp() {
         installUpdateBtn.innerText = 'Starting...';
         updateProgressContainer.style.display = 'block';
         
-        window.pywebview.api.perform_update(updateDownloadUrl);
+        window.pywebview.api.performUpdate(updateDownloadUrl);
     });
 
     window.addEventListener('update_progress', (e) => {
@@ -353,7 +353,7 @@ function initApp() {
 
     const autoCheckForUpdates = async () => {
         try {
-            const res = await window.pywebview.api.check_for_updates();
+            const res = await window.pywebview.api.checkForUpdates();
             if (res.success && res.hasUpdate) {
                 showUpdateToast();
             }
@@ -371,7 +371,7 @@ function initApp() {
         const activeFormat = document.querySelector('input[name="format"]:checked').value;
         const activeQuality = qualitySelect.value;
         if (window.pywebview && window.pywebview.api) {
-            window.pywebview.api.save_preferences(activeFormat, activeQuality);
+            window.pywebview.api.savePreferences(activeFormat, activeQuality);
         }
     };
 
@@ -398,7 +398,7 @@ function initApp() {
 
     // Path Browse
     browseBtn.addEventListener('click', () => {
-        window.pywebview.api.browse_directory(outputPath.value).then(path => {
+        window.pywebview.api.browseDirectory(outputPath.value).then(path => {
             if (path) outputPath.value = path;
         });
     });
@@ -409,7 +409,7 @@ function initApp() {
         openFolderBtn.addEventListener('click', async () => {
             const path = outputPath.value;
             if (path) {
-                const res = await window.pywebview.api.open_path(path);
+                const res = await window.pywebview.api.openPath(path);
                 if (!res.success) {
                     alert('Could not open folder: ' + res.error);
                 }
@@ -433,7 +433,7 @@ function initApp() {
         document.getElementById('previewContent').style.display = 'none';
         
         try {
-            const result = await window.pywebview.api.fetch_video_info(url);
+            const result = await window.pywebview.api.fetchVideoInfo(url);
             
             if (!result.success) {
                 alert('Failed to fetch: ' + result.error);
@@ -477,12 +477,12 @@ function initApp() {
         if (currentFetchResult.isPlaylist && currentFetchResult.raw.entries) {
             // Playlist downloads are dispatched as multiple parallel jobs
             const selectedUrls = getSelectedPlaylistUrls();
-            window.pywebview.api.start_playlist_download(format, quality, path, selectedUrls).then(res => {
+            window.pywebview.api.startPlaylistDownload(format, quality, path, selectedUrls).then(res => {
                 if(!res.success) alert("Failed to start download: " + res.error);
             });
         } else {
 
-            window.pywebview.api.start_download(finalUrl, format, quality, path).then(res => {
+            window.pywebview.api.startDownload(finalUrl, format, quality, path).then(res => {
                 if(!res.success) alert("Failed to start download: " + res.error);
             });
         }
@@ -657,7 +657,7 @@ function initApp() {
             const card = e.target.closest('.download-card');
             if (card) {
                 const id = card.dataset.id;
-                window.pywebview.api.cancel_download(id);
+                window.pywebview.api.cancelDownload(id);
                 e.target.disabled = true;
                 e.target.innerText = 'Stopping...';
             }

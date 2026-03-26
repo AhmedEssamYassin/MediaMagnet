@@ -7,19 +7,19 @@ from typing import List, Dict
 class HistoryService:
     """Manages download history"""
 
-    def __init__(self, history_file: str = "history.json"):
-        self.history_file = Path.home() / ".video_downloader" / history_file
-        self.history_file.parent.mkdir(parents=True, exist_ok=True)
+    def __init__(self, historyFile: str = "history.json"):
+        self.historyFile = Path.home() / ".video_downloader" / historyFile
+        self.historyFile.parent.mkdir(parents=True, exist_ok=True)
         self.history = self._loadHistory()
 
     def _loadHistory(self) -> List[Dict]:
-        if not self.history_file.exists():
+        if not self.historyFile.exists():
             return []
-        with open(self.history_file, "r") as f:
+        with open(self.historyFile, "r") as f:
             return json.load(f)
 
     def _saveHistory(self):
-        with open(self.history_file, "w") as f:
+        with open(self.historyFile, "w") as f:
             json.dump(self.history, f, indent=4)
 
     def addEntry(self, title: str, url: str, path: str, status: str):

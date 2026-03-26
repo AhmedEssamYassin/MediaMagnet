@@ -24,10 +24,10 @@ class InstagramDownloader(BaseDownloader):
     
     def getVideoInfo(self, url: str) -> VideoInfo:
         """Fetch Instagram video information"""
-        ydl_opts = {'quiet': True, 'no_warnings': True, 'nocheckcertificate': True}
+        ydlOpts = {'quiet': True, 'no_warnings': True, 'nocheckcertificate': True}
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 return VideoInfo(
                     title=info.get('title', 'Instagram Video'),
@@ -41,10 +41,10 @@ class InstagramDownloader(BaseDownloader):
     def downloadVideo(self, url: str, outputPath: str, quality: str, 
                       formatType: str, progressCallback, title: str = None):
         """Download Instagram content"""
-        ydl_opts = self._buildYdlOpts(outputPath, quality, formatType, progressCallback, title)
+        ydlOpts = self._buildYdlOpts(outputPath, quality, formatType, progressCallback, title)
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 ydl.download([url])
         except Exception as e:
             raise Exception(f"Instagram download failed: {str(e)}")
@@ -63,7 +63,7 @@ class InstagramDownloader(BaseDownloader):
         else:
             outtmpl = f'{outputPath}/%(title)s.%(ext)s'
 
-        base_opts = {
+        baseOpts = {
             'outtmpl': outtmpl,
             'progress_hooks': [progressCallback],
             'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
@@ -71,7 +71,7 @@ class InstagramDownloader(BaseDownloader):
         }
         
         if formatType == 'MP3':
-            base_opts.update({
+            baseOpts.update({
                 'format': 'bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -80,12 +80,12 @@ class InstagramDownloader(BaseDownloader):
                 }]
             })
         else:
-            base_opts.update({
+            baseOpts.update({
                 'format': self._getFormatString(quality),
                 'merge_output_format': 'mp4',
             })
         
-        return base_opts
+        return baseOpts
     
     def _formatDuration(self, seconds):
         """Convert seconds to readable duration"""
@@ -100,11 +100,11 @@ class InstagramDownloader(BaseDownloader):
     
     def _getFormatString(self, quality):
         """Convert quality to yt-dlp format string"""
-        quality_map = {
+        qualityMap = {
             'best': 'bestvideo+bestaudio/best',
             '1080p': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
             '720p': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
             '480p': 'bestvideo[height<=480]+bestaudio/best[height<=480]',
             '360p': 'bestvideo[height<=360]+bestaudio/best[height<=360]',
         }
-        return quality_map.get(quality, 'bestvideo+bestaudio/best')
+        return qualityMap.get(quality, 'bestvideo+bestaudio/best')

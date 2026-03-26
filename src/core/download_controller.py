@@ -91,20 +91,20 @@ class DownloadController:
                     
                     job.totalBytes = total
                     
-                    speed_bps = d.get('speed', 0)
-                    if speed_bps:
-                        if speed_bps > 1024 * 1024:
-                            job.speed = f"{speed_bps / (1024 * 1024):.1f} MB/s"
-                        elif speed_bps > 1024:
-                            job.speed = f"{speed_bps / 1024:.1f} KB/s"
+                    speedBps = d.get('speed', 0)
+                    if speedBps:
+                        if speedBps > 1024 * 1024:
+                            job.speed = f"{speedBps / (1024 * 1024):.1f} MB/s"
+                        elif speedBps > 1024:
+                            job.speed = f"{speedBps / 1024:.1f} KB/s"
                         else:
-                            job.speed = f"{int(speed_bps)} B/s"
+                            job.speed = f"{int(speedBps)} B/s"
                     else:
                         job.speed = ""
 
-                    eta_sec = d.get('eta', 0)
-                    if eta_sec:
-                        mins, secs = divmod(eta_sec, 60)
+                    etaSec = d.get('eta', 0)
+                    if etaSec:
+                        mins, secs = divmod(etaSec, 60)
                         hours, mins = divmod(mins, 60)
                         if hours > 0:
                             job.eta = f"{int(hours)}h {int(mins)}m"
@@ -115,7 +115,7 @@ class DownloadController:
                     else:
                         job.eta = ""
 
-                    if total > 0 or speed_bps or eta_sec:
+                    if total > 0 or speedBps or etaSec:
                         EventEmitter.emit(EventType.DOWNLOAD_PROGRESS, job)
                 except Exception:
                     pass

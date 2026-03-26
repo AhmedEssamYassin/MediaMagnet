@@ -56,11 +56,11 @@ def main():
     controller = DownloadController()
     api = WebViewApi(controller)
 
-    html_path = resourcePath("src/web/index.html")
+    htmlPath = resourcePath("src/web/index.html")
 
     window = webview.create_window(
         title="Video Downloader Pro",
-        url=html_path,
+        url=htmlPath,
         js_api=api,
         width=1000,
         height=750,
@@ -68,7 +68,7 @@ def main():
         background_color='#141726' if savedTheme == 'dark' else '#fafafa'
     )
     
-    api.set_window(window)
+    api.setWindow(window)
     
     # Start the webview application (blocking call)
     webview.start(debug=False)

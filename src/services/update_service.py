@@ -57,13 +57,13 @@ class UpdateService:
             
             # Locate updater.exe correctly whether it's a --onefile or --onedir build
             meipass = getattr(sys, '_MEIPASS', currentDir)
-            possible_paths = [
+            possiblePaths = [
                 os.path.join(meipass, "updater.exe"),   # Location for --onefile build
                 os.path.join(currentDir, "updater.exe") # Location for --onedir build
             ]
             
             updaterPath = None
-            for path in possible_paths:
+            for path in possiblePaths:
                 if os.path.exists(path):
                     updaterPath = path
                     break

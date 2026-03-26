@@ -15,24 +15,24 @@ class FacebookDownloader(BaseDownloader):
     
     def canHandle(self, url: str) -> bool:
         """Check if URL is a Facebook video"""
-        facebook_patterns = [
+        facebookPatterns = [
             r'(https?://)?(www\.)?facebook\.com/',
             r'fb\.watch/',
             r'facebook\.com/watch',
             r'facebook\.com/.*/(videos|posts)/'
         ]
-        return any(re.search(pattern, url) for pattern in facebook_patterns)
+        return any(re.search(pattern, url) for pattern in facebookPatterns)
     
     def getVideoInfo(self, url: str) -> VideoInfo:
         """Fetch Facebook video information"""
-        ydl_opts = {
+        ydlOpts = {
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
         }
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 
                 # Facebook videos typically have specific formats
@@ -49,14 +49,14 @@ class FacebookDownloader(BaseDownloader):
                                reverse=True)
                 
                 # Format duration correctly
-                duration_secs = info.get('duration') or 0
-                mins, secs = divmod(int(duration_secs), 60)
+                durationSecs = info.get('duration') or 0
+                mins, secs = divmod(int(durationSecs), 60)
                 hours, mins = divmod(mins, 60)
-                formatted_duration = f"{hours:02d}:{mins:02d}:{secs:02d}" if hours > 0 else f"{mins:02d}:{secs:02d}"
-
+                formattedDuration = f"{hours:02d}:{mins:02d}:{secs:02d}" if hours > 0 else f"{mins:02d}:{secs:02d}"
+ 
                 return VideoInfo(
                     title=info.get('title', 'Facebook Video'),
-                    duration=formatted_duration,
+                    duration=formattedDuration,
                     thumbnail=info.get('thumbnail', ''),
                     formats=formats if formats else ['best', '720p', '480p', '360p']
                 )
@@ -72,7 +72,7 @@ class FacebookDownloader(BaseDownloader):
             outtmpl = os.path.join(outputPath, '%(title)s.%(ext)s')
         
         if formatType == "MP3":
-            ydl_opts = {
+            ydlOpts = {
                 'format': 'bestaudio/best',
                 'outtmpl': outtmpl,
                 'postprocessors': [{
@@ -85,20 +85,20 @@ class FacebookDownloader(BaseDownloader):
             }
         else:
             if quality == 'best':
-                format_string = 'best'
+                formatString = 'best'
             else:
                 height = quality.replace('p', '')
-                format_string = f'best[height<={height}]/best'
+                formatString = f'best[height<={height}]/best'
             
-            ydl_opts = {
-                'format': format_string,
+            ydlOpts = {
+                'format': formatString,
                 'outtmpl': outtmpl,
                 'progress_hooks': [progressCallback],
                 'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
         
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlOpts) as ydl:
                 ydl.download([url])
         except Exception as e:
             raise Exception(f"Facebook download failed: {str(e)}")

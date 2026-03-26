@@ -17,29 +17,29 @@ class WebViewApi:
         self._window = None
         self._bind_events()
 
-    def set_window(self, window):
+    def setWindow(self, window):
         """Called by main.py immediately after creating the webview window"""
         self._window = window
 
-    def _bind_events(self):
+    def _bindEvents(self):
         """Listen to backend events and dispatch them to the frontend via JS"""
-        EventEmitter.on(EventType.DOWNLOAD_ADDED, self._dispatch_event_added)
-        EventEmitter.on(EventType.DOWNLOAD_START, self._dispatch_event_start)
-        EventEmitter.on(EventType.DOWNLOAD_PROGRESS, self._dispatch_event_progress)
-        EventEmitter.on(EventType.DOWNLOAD_COMPLETE, self._dispatch_event_complete)
-        EventEmitter.on(EventType.DOWNLOAD_ERROR, self._dispatch_event_error)
-        EventEmitter.on(EventType.DOWNLOAD_CANCELLED, self._dispatch_event_cancelled)
+        EventEmitter.on(EventType.DOWNLOAD_ADDED, self._dispatchEventAdded)
+        EventEmitter.on(EventType.DOWNLOAD_START, self._dispatchEventStart)
+        EventEmitter.on(EventType.DOWNLOAD_PROGRESS, self._dispatchEventProgress)
+        EventEmitter.on(EventType.DOWNLOAD_COMPLETE, self._dispatchEventComplete)
+        EventEmitter.on(EventType.DOWNLOAD_ERROR, self._dispatchEventError)
+        EventEmitter.on(EventType.DOWNLOAD_CANCELLED, self._dispatchEventCancelled)
 
-    def _safe_execute_js(self, js_code):
+    def _safeExecuteJs(self, jsCode):
         if self._window:
             try:
-                self._window.evaluate_js(js_code)
+                self._window.evaluate_js(jsCode)
             except Exception as e:
                 print(f"Error executing JS: {e}")
 
     # ===== Frontend API Methods =====
 
-    def fetch_video_info(self, url):
+    def fetchVideoInfo(self, url):
         """Fetch video metadata and return as JSON serializable dict"""
         try:
             from ..data_models import PlaylistInfo
@@ -48,12 +48,12 @@ class WebViewApi:
             info = DownloadManager.getVideoInfo(url)
             self._controller.videoInfo = info
             
-            is_playlist = isinstance(info, PlaylistInfo)
+            isPlaylist = isinstance(info, PlaylistInfo)
             
-            if is_playlist:
-                clean_entries = []
+            if isPlaylist:
+                cleanEntries = []
                 for entry in info.videos:
-                    clean_entries.append({
+                    cleanEntries.append({
                         'title': entry.get('title', 'Unknown'),
                         'url': entry.get('url', ''),
                         'duration': 'N/A',
@@ -65,7 +65,7 @@ class WebViewApi:
                     'title': info.title,
                     'duration': 'Playlist',
                     'thumbnail': '',
-                    'raw': {'entries': clean_entries}
+                    'raw': {'entries': cleanEntries}
                 }
             else:
                 return {
@@ -79,25 +79,25 @@ class WebViewApi:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def start_download(self, url, format_type, quality, output_path):
+    def startDownload(self, url, formatType, quality, outputPath):
         """Called by JS to start a single download"""
         try:
             from ..data_models import DownloadConfig
-            config = DownloadConfig(url=url, outputPath=output_path, quality=quality, formatType=format_type)
+            config = DownloadConfig(url=url, outputPath=outputPath, quality=quality, formatType=formatType)
 
             self._controller.startDownload(config)
             return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def get_history(self):
+    def getHistory(self):
         """Fetch download history"""
         try:
             historyList = self._controller.getHistory()
 
-            clean_history = []
+            cleanHistory = []
             for idx, entry in enumerate(historyList):
-                clean_history.append({
+                cleanHistory.append({
                     'index': idx,
                     'title': entry.get('title', 'Unknown'),
                     'url': entry.get('url', ''),
@@ -105,11 +105,11 @@ class WebViewApi:
                     'status': entry.get('status', 'Unknown'),
                     'timestamp': entry.get('timestamp', None),
                 })
-            return {'success': True, 'history': clean_history}
+            return {'success': True, 'history': cleanHistory}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def remove_history_entry(self, index):
+    def removeHistoryEntry(self, index):
         """Remove a single entry from history by its index"""
         try:
             self._controller.removeHistoryEntry(int(index))
@@ -117,7 +117,7 @@ class WebViewApi:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def clear_history(self):
+    def clearHistory(self):
         """Clear all download history"""
         try:
             self._controller.clearHistory()
@@ -125,7 +125,7 @@ class WebViewApi:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def open_path(self, path):
+    def openPath(self, path):
         """Open the specific path in native OS File Explorer"""
         try:
             import subprocess
@@ -146,26 +146,26 @@ class WebViewApi:
             print(f"Error opening explicit path: {e}")
             return {'success': False, 'error': str(e)}
 
-    def start_playlist_download(self, format_type, quality, output_path, selected_urls):
+    def startPlaylistDownload(self, formatType, quality, outputPath, selectedUrls):
         """Called by JS to start a playlist download in bulk"""
         try:
             from ..data_models import DownloadConfig
 
-            config = DownloadConfig(url='playlist', outputPath=output_path, quality=quality, formatType=format_type)
-            self._controller.startDownload(config, selectedVideos=selected_urls)
+            config = DownloadConfig(url='playlist', outputPath=outputPath, quality=quality, formatType=formatType)
+            self._controller.startDownload(config, selectedVideos=selectedUrls)
             return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
             
-    def cancel_download(self, job_id):
+    def cancelDownload(self, jobId):
         """Called by JS to cancel a specific job"""
         try:
-            self._controller.cancelJob(job_id)
+            self._controller.cancelJob(jobId)
             return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def browse_directory(self, current_dir):
+    def browseDirectory(self, currentDir):
         """Open native directory picker dialog"""
         # tkinter filedialog requires a hidden root window
         root = tk.Tk()
@@ -173,7 +173,7 @@ class WebViewApi:
         
         # Force dialog above the pywebview window
         root.attributes('-topmost', True)
-        directory = filedialog.askdirectory(initialdir=current_dir)
+        directory = filedialog.askdirectory(initialdir=currentDir)
         root.destroy()
         
         if directory:
@@ -181,7 +181,7 @@ class WebViewApi:
             return directory
         return None
 
-    def get_settings(self):
+    def getSettings(self):
         """Return app settings to the frontend on load"""
         return {
             'defaultPath': SettingsManager.getDefaultDownloadPath(),
@@ -195,10 +195,10 @@ class WebViewApi:
             'defaultQuality': SettingsManager.getDefaultQuality()
         }
         
-    def save_preferences(self, format_type, quality, path=None):
+    def savePreferences(self, formatType, quality, path=None):
         """Save standard UI preferences immediately when changed interactively"""
         try:
-            SettingsManager.setDefaultFormat(str(format_type))
+            SettingsManager.setDefaultFormat(str(formatType))
             SettingsManager.setDefaultQuality(str(quality))
             if path:
                 SettingsManager.setDefaultDownloadPath(str(path))
@@ -206,28 +206,28 @@ class WebViewApi:
         except Exception as e:
             return {'success': False, 'error': str(e)}
         
-    def save_settings(self, max_concurrent, max_concurrent_parts, language, notifications, remember_path, theme=None, default_path=None):
+    def saveSettings(self, maxConcurrent, maxConcurrentParts, language, notifications, rememberPath, theme=None, defaultPath=None):
         """Save settings preferences"""
         try:
-            SettingsManager.setMaxConcurrentDownloads(int(max_concurrent))
-            SettingsManager.setMaxConcurrentParts(int(max_concurrent_parts))
+            SettingsManager.setMaxConcurrentDownloads(int(maxConcurrent))
+            SettingsManager.setMaxConcurrentParts(int(maxConcurrentParts))
             SettingsManager.setLanguage(str(language))
             SettingsManager.setNotificationsEnabled(bool(notifications))
-            SettingsManager.setRememberLastPath(bool(remember_path))
+            SettingsManager.setRememberLastPath(bool(rememberPath))
             if theme:
                 SettingsManager.setTheme(str(theme))
-            if default_path:
-                SettingsManager.setDefaultDownloadPath(str(default_path))
+            if defaultPath:
+                SettingsManager.setDefaultDownloadPath(str(defaultPath))
             return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def save_theme(self, theme):
+    def saveTheme(self, theme):
         """Save theme preference"""
         SettingsManager.setTheme(theme)
         return True
 
-    def get_app_version(self):
+    def getAppVersion(self):
         """Get current application version from config"""
         try:
             config = AssetLoader.loadConfig()
@@ -235,40 +235,40 @@ class WebViewApi:
         except Exception:
             return 'Unknown'
 
-    def check_for_updates(self):
+    def checkForUpdates(self):
         """Check for new software updates"""
         try:
-            version = self.get_app_version()
-            has_update, latest_version, download_url = UpdateService.checkForUpdates(version)
+            version = self.getAppVersion()
+            hasUpdate, latestVersion, downloadUrl = UpdateService.checkForUpdates(version)
             return {
                 'success': True,
-                'hasUpdate': has_update,
-                'latestVersion': latest_version,
-                'downloadUrl': download_url
+                'hasUpdate': hasUpdate,
+                'latestVersion': latestVersion,
+                'downloadUrl': downloadUrl
             }
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    def perform_update(self, download_url):
+    def performUpdate(self, downloadUrl):
         """Start the automated update process"""
         try:
-            def on_progress(p):
+            def onProgress(p):
                 js = f"window.dispatchEvent(new CustomEvent('update_progress', {{detail: {{progress: {p}}}}}));"
-                self._safe_execute_js(js)
+                self._safeExecuteJs(js)
 
-            def on_complete():
+            def onComplete():
                 js = "window.dispatchEvent(new CustomEvent('update_complete'));"
-                self._safe_execute_js(js)
+                self._safeExecuteJs(js)
 
-            def on_error(err):
+            def onError(err):
                 js = f"window.dispatchEvent(new CustomEvent('update_error', {{detail: {{error: '{err}'}}}}));"
-                self._safe_execute_js(js)
+                self._safeExecuteJs(js)
 
             UpdateService.downloadAndInstall(
-                download_url,
-                progressCallback=on_progress,
-                completedCallback=on_complete,
-                errorCallback=on_error
+                downloadUrl,
+                progressCallback=onProgress,
+                completedCallback=onComplete,
+                errorCallback=onError
             )
             return {'success': True}
         except Exception as e:
@@ -276,9 +276,9 @@ class WebViewApi:
 
     # ===== Private Event Dispatchers =====
     
-    def _create_dispatch(self, event_name, job):
+    def _createDispatch(self, eventName, job):
         """Helper to serialize a job and send custom event to javascript window"""
-        job_data = {
+        jobData = {
             'id': job.id,
             'url': getattr(job, 'url', getattr(job.config, 'url', '') if hasattr(job, 'config') else ''),
             'title': getattr(job, 'title', ''),
@@ -290,30 +290,30 @@ class WebViewApi:
         }
         
 
-        json_str = json.dumps(job_data).replace("'", "\\'")
-        js_cmd = f"window.dispatchEvent(new CustomEvent('{event_name}', {{detail: {json_str}}}));"
-        self._safe_execute_js(js_cmd)
+        jsonStr = json.dumps(jobData).replace("'", "\\'")
+        jsCmd = f"window.dispatchEvent(new CustomEvent('{eventName}', {{detail: {jsonStr}}}));"
+        self._safeExecuteJs(jsCmd)
 
-    def _dispatch_event_added(self, job):
-        self._create_dispatch("download_added", job)
+    def _dispatchEventAdded(self, job):
+        self._createDispatch("download_added", job)
 
-    def _dispatch_event_start(self, job):
-        self._create_dispatch("download_start", job)
+    def _dispatchEventStart(self, job):
+        self._createDispatch("download_start", job)
 
-    def _dispatch_event_progress(self, job):
-        self._create_dispatch("download_progress", job)
+    def _dispatchEventProgress(self, job):
+        self._createDispatch("download_progress", job)
 
-    def _dispatch_event_complete(self, job):
-        self._create_dispatch("download_complete", job)
+    def _dispatchEventComplete(self, job):
+        self._createDispatch("download_complete", job)
 
-    def _dispatch_event_error(self, job, error_msg):
-        job_data = {
+    def _dispatchEventError(self, job, errorMsg):
+        jobData = {
             'id': getattr(job, 'id', 'unknown'),
-            'error': str(error_msg)
+            'error': str(errorMsg)
         }
-        json_str = json.dumps(job_data).replace("'", "\\'")
-        js_cmd = f"window.dispatchEvent(new CustomEvent('download_error', {{detail: {json_str}}}));"
-        self._safe_execute_js(js_cmd)
+        jsonStr = json.dumps(jobData).replace("'", "\\'")
+        jsCmd = f"window.dispatchEvent(new CustomEvent('download_error', {{detail: {jsonStr}}}));"
+        self._safeExecuteJs(jsCmd)
 
-    def _dispatch_event_cancelled(self, job):
-        self._create_dispatch("download_cancelled", job)
+    def _dispatchEventCancelled(self, job):
+        self._createDispatch("download_cancelled", job)
