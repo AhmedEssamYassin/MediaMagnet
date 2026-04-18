@@ -1,6 +1,5 @@
 """
-Download management functionality - now using Factory Pattern
-This module is updated but maintains backward compatibility
+Download management functionality using Factory Pattern
 """
 
 from ..data_models import VideoInfo
@@ -10,7 +9,6 @@ from ..downloaders import DownloaderFactory
 class DownloadManager:
     """
     Handles video download operations using appropriate provider
-    Now acts as a facade for the downloader factory
     """
     
     @staticmethod

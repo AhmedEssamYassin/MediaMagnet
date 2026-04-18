@@ -19,8 +19,8 @@ class AssetLoader:
         ASSETS_DIR = Path(__file__).parent.parent.parent / "assets"
     
     # Cache for loaded assets
-    _config_cache = None
-    _translations_cache = {}
+    _configCache = None
+    _translationsCache = {}
     
     @classmethod
     def getAssetsDir(cls) -> Path:
@@ -40,25 +40,25 @@ class AssetLoader:
     @classmethod
     def loadConfig(cls) -> Dict[str, Any]:
         """Load default configuration (cached)"""
-        if cls._config_cache is None:
-            config_path = cls.getDataPath("default_config.json")
-            with open(config_path, 'r', encoding='utf-8') as f:
-                cls._config_cache = json.load(f)
-        return cls._config_cache
+        if cls._configCache is None:
+            configPath = cls.getDataPath("default_config.json")
+            with open(configPath, 'r', encoding='utf-8') as f:
+                cls._configCache = json.load(f)
+        return cls._configCache
     
     @classmethod
     def loadTranslations(cls, language: str = "en") -> Dict[str, Any]:
         """Load translations for specified language (cached)"""
-        if language not in cls._translations_cache:
-            trans_path = cls.ASSETS_DIR / "data" / "translations" / f"{language}.json"
-            if not trans_path.exists():
+        if language not in cls._translationsCache:
+            transPath = cls.ASSETS_DIR / "data" / "translations" / f"{language}.json"
+            if not transPath.exists():
                 # Fallback to English
-                trans_path = cls.ASSETS_DIR / "data" / "translations" / "en.json"
+                transPath = cls.ASSETS_DIR / "data" / "translations" / "en.json"
             
-            with open(trans_path, 'r', encoding='utf-8') as f:
-                cls._translations_cache[language] = json.load(f)
+            with open(transPath, 'r', encoding='utf-8') as f:
+                cls._translationsCache[language] = json.load(f)
         
-        return cls._translations_cache[language]
+        return cls._translationsCache[language]
     
     @classmethod
     def getTranslation(cls, key: str, language: str = "en") -> str:
@@ -86,11 +86,11 @@ class AssetLoader:
     @classmethod
     def getAvailableLanguages(cls) -> list:
         """Get list of available language codes"""
-        trans_dir = cls.ASSETS_DIR / "data" / "translations"
-        if not trans_dir.exists():
+        transDir = cls.ASSETS_DIR / "data" / "translations"
+        if not transDir.exists():
             return ["en"]
         
-        return [f.stem for f in trans_dir.glob("*.json")]
+        return [f.stem for f in transDir.glob("*.json")]
     
     @classmethod
     def getSupportedPlatforms(cls) -> list:
@@ -116,18 +116,4 @@ class AssetLoader:
         config = cls.loadConfig()
         return config.get("download_presets", [])
 
-
-# Convenience functions
-def loadConfig() -> Dict[str, Any]:
-    """Load default configuration"""
-    return AssetLoader.loadConfig()
-
-
-def loadTranslations(language: str = "en") -> Dict[str, Any]:
-    """Load translations for specified language"""
-    return AssetLoader.loadTranslations(language)
-
-
-def getTranslation(key: str, language: str = "en") -> str:
-    """Get a specific translation by key"""
-    return AssetLoader.getTranslation(key, language)
+

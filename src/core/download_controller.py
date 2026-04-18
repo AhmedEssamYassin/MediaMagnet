@@ -3,6 +3,7 @@ Controller for coordinating downloads, managing job state, and bridging services
 """
 
 import threading
+import re
 from concurrent.futures import ThreadPoolExecutor
 from .download_manager import DownloadManager
 from ..data_models import DownloadConfig, PlaylistInfo
@@ -11,6 +12,7 @@ from ..services import DesktopNotifier
 from ..utils.file_utils import sanitizeFilename
 from .events import EventEmitter, EventType
 from .download_job import DownloadJob, DownloadStatus
+from ..utils import SettingsManager
 
 class DownloadController:
     """Coordinates download operations and manages state"""
@@ -19,8 +21,9 @@ class DownloadController:
         self.videoInfo = None
         self.historyService = HistoryService()
         self.notifier = DesktopNotifier()
-        self.executor = ThreadPoolExecutor(max_workers=3)
+        self.executor = ThreadPoolExecutor(max_workers=SettingsManager.getMaxConcurrentDownloads())
         self.jobs = {} # dictionary mapping jobId to DownloadJob instance
+        self.ansiEscape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     
     def fetchVideoInfo(self, url, onSuccess=None, onError=None, onComplete=None):
         """Fetch video information in a background thread"""
@@ -60,13 +63,13 @@ class DownloadController:
                 
             for video in videosToDownload:
                 sanTitle = sanitizeFilename(video['title'])
-                job = DownloadJob(url=video['url'], title=sanTitle, config=config)
+                job = DownloadJob(url=video['url'], title=sanTitle, config=config, thumbnail=video.get('thumbnail', ''))
                 self._submitJob(job)
         else:
             if self.videoInfo:
                 originalTitle = mainTitle if mainTitle else self.videoInfo.title
                 sanTitle = sanitizeFilename(originalTitle)
-                job = DownloadJob(url=config.url, title=sanTitle, config=config)
+                job = DownloadJob(url=config.url, title=sanTitle, config=config, thumbnail=self.videoInfo.thumbnail)
                 self._submitJob(job)
             
     def _submitJob(self, job: DownloadJob):
@@ -91,31 +94,12 @@ class DownloadController:
                     
                     job.totalBytes = total
                     
-                    speedBps = d.get('speed', 0)
-                    if speedBps:
-                        if speedBps > 1024 * 1024:
-                            job.speed = f"{speedBps / (1024 * 1024):.1f} MB/s"
-                        elif speedBps > 1024:
-                            job.speed = f"{speedBps / 1024:.1f} KB/s"
-                        else:
-                            job.speed = f"{int(speedBps)} B/s"
-                    else:
-                        job.speed = ""
+                    job.speed = d.get('_speed_str', '').strip()
+                    job.eta = d.get('_eta_str', '').strip()
+                    job.speed = self.ansiEscape.sub('', job.speed)
+                    job.eta = self.ansiEscape.sub('', job.eta)
 
-                    etaSec = d.get('eta', 0)
-                    if etaSec:
-                        mins, secs = divmod(etaSec, 60)
-                        hours, mins = divmod(mins, 60)
-                        if hours > 0:
-                            job.eta = f"{int(hours)}h {int(mins)}m"
-                        elif mins > 0:
-                            job.eta = f"{int(mins)}m {int(secs)}s"
-                        else:
-                            job.eta = f"{int(secs)}s"
-                    else:
-                        job.eta = ""
-
-                    if total > 0 or speedBps or etaSec:
+                    if total > 0 or job.speed or job.eta:
                         EventEmitter.emit(EventType.DOWNLOAD_PROGRESS, job)
                 except Exception:
                     pass
@@ -131,7 +115,7 @@ class DownloadController:
             )
             job.status = DownloadStatus.COMPLETED
             job.progress = 1.0
-            self.historyService.addEntry(job.title, job.url, job.config.outputPath, "Completed")
+            self.historyService.addEntry(job.title, job.url, job.config.outputPath, "Completed", job.thumbnail)
             EventEmitter.emit(EventType.DOWNLOAD_COMPLETE, job)
             self.notifier.sendNotification("Download Complete", f"Finished downloading: {job.title}")
         except Exception as e:

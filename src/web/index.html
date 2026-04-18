@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,156 +8,232 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="dark-theme">
-    
+
     <!-- Skeleton Loading Screen -->
     <div id="initialLoader" class="skeleton-overlay">
         <div class="skeleton-pulse skeleton-header"></div>
-        <div class="skeleton-body">
-            <div class="skeleton-pulse skeleton-panel" style="flex: 2;"></div>
-            <div class="skeleton-pulse skeleton-panel" style="flex: 1;"></div>
-        </div>
+        <div class="skeleton-pulse skeleton-body"></div>
     </div>
 
-    <div class="app-container glass-panel" style="opacity: 0; transition: opacity 0.5s ease-out;">
+    <div class="app-container">
         <!-- Header -->
         <header class="header">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
                 </div>
-                <h1>Video Downloader Pro</h1>
+                <h1>Video Downloader</h1>
             </div>
-            <div class="header-actions" style="display: flex; gap: 8px;">
+            <div class="header-actions">
                 <button id="globalSettingsBtn" class="icon-button" title="Settings">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
                 </button>
                 <button id="historyBtn" class="icon-button" title="View Download History">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
                 </button>
                 <button id="themeToggle" class="icon-button" title="Toggle Theme">
-                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                    <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                <button id="activeDownloadsBtn" class="icon-button" title="Active Downloads">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span id="activeDownloadsBadge" class="badge" style="display: none;">0</span>
                 </button>
             </div>
         </header>
 
-        <!-- Main Content Layout -->
         <main class="main-content">
-            <!-- Left Column: Input and Video Info -->
-            <div class="left-column">
-                
-                <!-- URL Input Section -->
-                <section class="card input-section">
-                    <div class="input-group">
-                        <div class="input-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                        </div>
-                        <input type="text" id="urlInput" placeholder="Paste YouTube, Facebook, or TikTok URL here...">
-                        <button id="fetchBtn" class="btn btn-primary" disabled>
-                            <span class="btn-text">Fetch Info</span>
-                            <div class="spinner" style="display: none;"></div>
-                        </button>
+            
+            <!-- Source URL Section -->
+            <section class="card source-card">
+                <div class="url-input-container">
+                    <div class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
                     </div>
-                </section>
+                    <input type="text" id="urlInput" placeholder="Paste YouTube, Facebook, or TikTok URL here...">
+                    <button id="fetchBtn" class="btn btn-primary" disabled>
+                        <span class="btn-text">Analyze</span>
+                        <div class="spinner" id="fetchSpinner" style="display: none;"></div>
+                    </button>
+                </div>
+            </section>
 
-                <!-- Video Preview Section -->
-                <section id="videoPreview" class="card empty-state">
-                    <div id="previewEmpty" class="empty-content">
-                        <svg class="placeholder-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <!-- Main Work Area (Split Grid) -->
+            <div class="work-area">
+                
+                <!-- Left: Video Preview -->
+                <section id="videoPreview" class="card preview-card">
+                    <div id="previewEmpty" class="empty-state">
+                        <svg class="placeholder-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
                         <p>No video selected</p>
                     </div>
-                    
-                    <div id="previewContent" class="preview-content" style="display: none;">
-                        <img id="thumbnail" src="" alt="Video Thumbnail">
-                        <div class="preview-details">
-                            <h3 id="videoTitle">Video Title Here</h3>
-                            <p class="meta" id="videoDuration">00:00</p>
-                        </div>
+
+
+
+                    <div id="previewPlaylist" class="preview-playlist" style="display: none; height: 100%; overflow-y: auto; flex-direction: column;">
+                        <h3 class="subsection-title" style="margin-bottom: 12px; font-size: 0.95rem; font-weight: 600;" id="previewPlaylistTitle">Selected Videos</h3>
+                        <div id="previewPlaylistItems" class="playlist-items-container" style="max-height: none; margin-top: 0; padding-right: 4px;"></div>
                     </div>
                 </section>
-                
-            </div>
 
-            <!-- Right Column: Settings and Queue -->
-            <div class="right-column">
-                
-                <!-- Settings Section -->
-                <section class="card settings-section">
-                    <h2>Settings</h2>
+                <!-- Right: Options & Action -->
+                <section class="card options-card">
+                    <h2 class="section-title">Download Options</h2>
                     
-                    <div class="setting-group row-group">
-                        <div class="setting-item format-item">
+                    <div class="options-grid">
+                        <div class="setting-group">
                             <label>Format</label>
                             <div class="segmented-control">
-                                <input type="radio" id="fmtMp4" name="format" value="MP4" checked>
-                                <label for="fmtMp4">🎬 MP4</label>
-                                <input type="radio" id="fmtMp3" name="format" value="MP3">
-                                <label for="fmtMp3">🎵 MP3</label>
+                                <input type="radio" id="fmtMp4" name="format" value="mp4" checked>
+                                <label for="fmtMp4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z"></path><rect x="3" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
+                                    MP4
+                                </label>
+                                
+                                <input type="radio" id="fmtMp3" name="format" value="mp3">
+                                <label for="fmtMp3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                                    MP3
+                                </label>
                             </div>
                         </div>
-                        
-                        <div class="setting-item quality-item">
+
+                        <div class="setting-group">
                             <label>Quality</label>
                             <select id="qualitySelect" class="modern-select">
-                                <option value="best">Best Quality</option>
-                                <option value="1080p">1080p</option>
-                                <option value="720p">720p</option>
-                                <option value="480p">480p</option>
+                                <option value="best">Best Available</option>
+                                <option value="1080p">1080p (FHD)</option>
+                                <option value="720p">720p (HD)</option>
+                                <option value="480p">480p (SD)</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="setting-group">
+                    <div class="setting-group save-location-group">
                         <label>Save Location</label>
-                        <div class="input-group">
+                        <div class="path-input-wrapper">
                             <input type="text" id="outputPath" readonly placeholder="Select output directory...">
-                            <button id="browseBtn" class="btn icon-button-box" title="Browse for directory">📂</button>
-                            <button id="openFolderBtn" class="btn icon-button-box" title="Open chosen directory" style="background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 0 10px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                            </button>
+                            <div class="path-actions">
+                                <button id="browseBtn" class="btn btn-secondary btn-icon-text" title="Browse for directory">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    Browse
+                                </button>
+                                <button id="openFolderBtn" class="btn btn-secondary btn-icon-only" title="Open folder in Explorer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <button id="downloadBtn" class="btn btn-primary btn-block" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
-                    </button>
-                </section>
-
-                <!-- Downloads Queue -->
-                <section class="card queue-section">
-                    <h2>Active Downloads</h2>
-                    <div id="downloadsList" class="downloads-list">
-                        <!-- Dynamic Download Cards will appear here -->
-                        <div class="empty-list-message" id="emptyDownloads">No active downloads.</div>
+                    <div class="action-footer">
+                        <button id="downloadBtn" class="btn btn-primary btn-block" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download
+                        </button>
                     </div>
                 </section>
-
             </div>
+
+            <!-- Downloads moved to modal -->
+            
         </main>
+    </div>
+
+    <!-- Active Downloads Mini Bar -->
+    <div id="activeDownloadsMiniBar" class="active-downloads-minibar" style="display: none;" onclick="document.getElementById('downloadsModal').classList.add('active')">
+        <div class="minibar-content">
+            <div class="spinner spinner-sm" style="display: block;"></div>
+            <span id="minibarText">1 download in progress...</span>
+        </div>
+        <button class="btn btn-sm btn-primary">View</button>
+    </div>
+
+    <!-- Active Downloads Modal -->
+    <div id="downloadsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Active Downloads</h2>
+                <button onclick="document.getElementById('downloadsModal').classList.remove('active')" class="icon-button" title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <div class="modal-body" style="padding: 16px;">
+                <div id="downloadsList" class="downloads-list">
+                    <div class="empty-state-text" id="emptyDownloads">No active downloads in queue.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Playlist Selection Modal -->
     <div id="playlistModal" class="modal-overlay">
-        <div class="modal card">
-            <h2>Playlist Found!</h2>
-            <p id="playlistInfo">We found 0 videos in this playlist.</p>
-            
-            <div class="playlist-actions">
-                <button id="selectAllBtn" class="btn btn-secondary btn-small">Select All</button>
-                <button id="deselectAllBtn" class="btn btn-secondary btn-small">Deselect All</button>
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Playlist Detected</h2>
+                <button onclick="document.getElementById('playlistModal').classList.remove('active')" class="icon-button" title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             
-            <div id="playlistItems" class="playlist-items-container">
-                <!-- Checkbox items generated here -->
+            <div class="modal-body">
+                <p id="playlistInfo" class="text-muted" style="margin-bottom: 16px;">We found 0 videos in this playlist.</p>
+
+                <div class="playlist-actions">
+                    <button id="selectAllBtn" class="btn btn-secondary btn-sm">Select All</button>
+                    <button id="deselectAllBtn" class="btn btn-secondary btn-sm">Deselect All</button>
+                </div>
+
+                <div id="playlistItems" class="playlist-items-container">
+                    <!-- Checkbox items generated here -->
+                </div>
             </div>
-            
-            <div class="modal-buttons">
+
+            <div class="modal-footer">
                 <button id="cancelPlaylistBtn" class="btn btn-secondary">Cancel</button>
                 <button id="confirmPlaylistBtn" class="btn btn-primary">Confirm Selection</button>
             </div>
@@ -165,157 +242,205 @@
 
     <!-- Global Application Settings Modal -->
     <div id="globalSettingsModal" class="modal-overlay">
-        <div class="modal card" style="max-width: 500px; width: 90%;">
-            <h2>Application Settings</h2>
-            
-            <div class="settings-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                <!-- General Column -->
-                <div>
-                    <h3 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--primary);">General</h3>
-                    <div class="setting-group" style="text-align: left;">
-                        <label>Language</label>
-                        <select id="settingsLanguage" class="modern-select" style="width: 100%; margin-top: 8px; padding: 0 10px; height: 42px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main);">
-                            <option value="en">English (Default)</option>
-                            <option value="ar">العربية</option>
-                            <option value="es">Español</option>
-                            <option value="fr">Français</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group" style="margin-top: 16px; text-align: left;">
-                        <label>App Theme</label>
-                        <select id="settingsTheme" class="modern-select" style="width: 100%; margin-top: 8px; padding: 0 10px; height: 42px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main);">
-                            <option value="dark">Dark Theme</option>
-                            <option value="light">Light Theme</option>
-                        </select>
-                    </div>
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h2>Preferences</h2>
+                <button onclick="document.getElementById('globalSettingsModal').classList.remove('active')" class="icon-button" title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
 
-                    <div class="setting-group" style="margin-top: 16px; text-align: left;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
-                            <input type="checkbox" id="settingsNotifications" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                            Desktop Notifications
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Downloads Column -->
-                <div>
-                    <h3 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--primary);">Downloads</h3>
-                    <div class="setting-group" style="text-align: left;">
-                        <label>Max Concurrent Downloads (Queue)</label>
-                        <input type="number" id="maxConcurrentDownloads" min="1" max="10" 
-                            style="width: 100%; margin-top: 8px; padding: 0 10px; height: 42px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main);"
-                        >
-                    </div>
+            <div class="modal-body">
+                <div class="settings-grid">
+                    <!-- General Column -->
+                    <div class="settings-col">
+                        <h3 class="subsection-title">General</h3>
+                        
+                        <div class="setting-group">
+                            <label>Language</label>
+                            <select id="settingsLanguage" class="modern-select">
+                                <option value="en">English (Default)</option>
+                                <option value="ar">العربية</option>
+                            </select>
+                        </div>
 
-                    <div class="setting-group" style="margin-top: 16px; text-align: left;">
-                        <label>Max Concurrent Parts (Per Video)</label>
-                        <input type="number" id="maxConcurrentParts" min="1" max="16" 
-                            style="width: 100%; margin-top: 8px; padding: 0 10px; height: 42px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main);"
-                        >
-                    </div>
-                    
-                    <div class="setting-group" style="margin-top: 16px; text-align: left;">
-                        <label>Default Save Path</label>
-                        <div style="display: flex; gap: 8px; margin-top: 8px; height: 42px; align-items: stretch;">
-                            <input type="text" id="settingsDefaultPath" readonly placeholder="Default directory..." 
-                                style="flex: 1; min-width: 0; padding: 0 12px; height: 100%; box-sizing: border-box; font-size: 0.95rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-main);"
-                            >
-                            <button type="button" id="settingsBrowseBtn" class="btn btn-secondary" onclick="window.triggerSettingsBrowse()" style="padding: 0 16px; height: 100%; box-sizing: border-box; border-radius: 8px; display: flex; align-items: center; justify-content: center;">Browse</button>
+                        <div class="setting-group">
+                            <label>App Theme</label>
+                            <select id="settingsTheme" class="modern-select">
+                                <option value="dark">Dark Theme</option>
+                                <option value="light">Light Theme</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="settingsNotifications">
+                                <span>Enable Desktop Notifications</span>
+                            </label>
                         </div>
                     </div>
-                    
-                    <div class="setting-group" style="margin-top: 16px; text-align: left;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
-                            <input type="checkbox" id="settingsAutoPath" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                            Remember last directory
-                        </label>
+
+                    <!-- Downloads Column -->
+                    <div class="settings-col">
+                        <h3 class="subsection-title">Downloads</h3>
+                        
+                        <div class="setting-group">
+                            <label>Max Concurrent Downloads</label>
+                            <input type="number" id="maxConcurrentDownloads" class="modern-input" min="1" max="10">
+                        </div>
+
+                        <div class="setting-group">
+                            <label>Max Concurrent Parts (Speed)</label>
+                            <input type="number" id="maxConcurrentParts" class="modern-input" min="1" max="16">
+                        </div>
+
+                        <div class="setting-group">
+                            <label>Default Save Path</label>
+                            <div class="path-input-wrapper">
+                                <input type="text" id="settingsDefaultPath" class="modern-input" readonly placeholder="Default directory...">
+                                <button type="button" id="settingsBrowseBtn" class="btn btn-secondary btn-icon-only" onclick="window.triggerSettingsBrowse()" title="Browse">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="settingsAutoPath">
+                                <span>Remember last used directory</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="updateSection" class="update-section">
+                    <h3 class="subsection-title">Software Update</h3>
+                    <div class="update-row">
+                        <div class="update-info">
+                            <div id="appVersion" class="version-text">Version: Checking...</div>
+                            <div id="updateStatus" class="status-text">Up to date</div>
+                        </div>
+                        <div class="update-actions">
+                            <button id="checkUpdateBtn" class="btn btn-secondary btn-sm">Check for Updates</button>
+                            <button id="installUpdateBtn" class="btn btn-primary btn-sm" style="display: none;">Update Now</button>
+                        </div>
+                    </div>
+
+                    <div id="updateProgressContainer" class="update-progress" style="display: none;">
+                        <div class="progress-labels">
+                            <span>Downloading Update...</span>
+                            <span id="updatePercent">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="updateProgressBar" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div id="updateSection" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left;">
-                <h3 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--primary);">Software Update</h3>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div id="appVersion" style="font-size: 0.9rem; color: var(--text-main);">Version: Checking...</div>
-                        <div id="updateStatus" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Up to date</div>
-                    </div>
-                    <button id="checkUpdateBtn" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.85rem;">Check for Updates</button>
-                    <button id="installUpdateBtn" class="btn btn-primary" style="display: none; padding: 6px 14px; font-size: 0.85rem;">Update Now</button>
-                </div>
-                
-                <div id="updateProgressContainer" style="display: none; margin-top: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.8rem;">
-                        <span>Downloading Update...</span>
-                        <span id="updatePercent">0%</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div id="updateProgressBar" class="progress-bar-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-buttons" style="margin-top: 24px;">
+
+            <div class="modal-footer">
                 <button id="cancelGlobalSettingsBtn" class="btn btn-secondary">Cancel</button>
                 <button id="saveGlobalSettingsBtn" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
     </div>
-    
+
     <!-- History Modal -->
     <div id="historyModal" class="modal-overlay">
-        <div class="modal card" style="max-width: 800px; width: 90%; max-height: 80vh; display: flex; flex-direction: column;">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+        <div class="modal modal-lg">
+            <div class="modal-header">
                 <h2>Download History</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button id="clearHistoryBtn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: rgba(220, 53, 69, 0.1); color: #dc3545; border-color: rgba(220, 53, 69, 0.3);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                <div class="header-actions">
+                    <button id="clearHistoryBtn" class="btn btn-danger btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         Clear History
                     </button>
-                    <button id="closeHistoryBtn" class="btn icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <button id="closeHistoryBtn" class="icon-button" title="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
             </div>
-            
-            <div class="modal-body" style="flex: 1; overflow-y: auto; margin-top: 10px; padding-right: 5px;" id="historyListContainer">
-                <div class="empty-list-message" id="emptyHistoryMsg">No downloads yet. Your history will appear here.</div>
+
+            <div class="modal-body" id="historyListContainer">
+                <div class="empty-state-text" id="emptyHistoryMsg">No downloads yet. Your history will appear here.</div>
                 <!-- JS will generate items here -->
             </div>
         </div>
     </div>
-    
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirmDialog" class="modal-overlay" style="z-index: 200;">
+        <div class="modal" style="max-width: 380px; text-align: center;">
+            <div class="modal-body" style="padding: 28px 24px 16px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.5" style="margin-bottom: 12px;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <h3 id="confirmDialogTitle" style="margin-bottom: 8px; font-size: 1.05rem;">Are you sure?</h3>
+                <p id="confirmDialogMessage" class="text-muted" style="font-size: 0.9rem; line-height: 1.5;">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 12px; padding: 12px 24px 20px; border-top: none;">
+                <button id="confirmDialogCancel" class="btn btn-secondary" style="min-width: 100px;">Cancel</button>
+                <button id="confirmDialogConfirm" class="btn btn-danger" style="min-width: 100px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Toast -->
+    <div id="updateToast" class="toast" style="display: none;">
+        <div class="toast-content">
+            <div class="toast-icon">✨</div>
+            <div class="toast-message">New update available!</div>
+        </div>
+        <div class="toast-actions">
+            <button id="viewUpdateBtn" class="btn btn-primary btn-sm">View</button>
+            <button id="closeToastBtn" class="icon-button" title="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container">
+        <!-- Toast template cloned via JS -->
+        <template id="toastTemplate">
+            <div class="toast">
+                <div class="toast-content">
+                    <div class="toast-icon">✓</div>
+                    <div class="toast-message">Notification message</div>
+                </div>
+                <div class="toast-actions">
+                    <button class="btn btn-primary btn-sm toast-action-btn" style="display:none;">View</button>
+                    <button class="icon-button toast-close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+
     <!-- Template for a download card (cloned via JS) -->
     <template id="downloadCardTemplate">
         <div class="download-card" data-id="">
             <div class="download-info">
-                <span class="d-title" style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Title</span>
+                <span class="d-title">Title</span>
                 <span class="d-status">Downloading...</span>
-                <button class="btn btn-secondary btn-small cancel-job-btn" style="padding: 2px 6px; margin-left: 8px;" title="Cancel Download">✕</button>
+                <button class="icon-button cancel-job-btn" title="Cancel Download">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             <div class="progress-bar-container">
                 <div class="progress-bar-fill" style="width: 0%"></div>
             </div>
             <div class="download-meta">
-                <span class="d-speed">0 MB/s</span>
-                <span class="d-percent">0%</span>
+                <span class="d-percent" style="font-weight: bold; margin-right: 8px;">0%</span>
+                <span class="d-size">0 MB</span>
+                <span class="d-speed">0 KB/s</span>
+                <span class="d-eta">ETA: --:--</span>
             </div>
         </div>
     </template>
-
-    <!-- Update Toast Notification -->
-    <div id="updateToast" class="toast-card">
-        <div class="toast-icon">🚀</div>
-        <div class="toast-content">
-            <div class="toast-title">Update Available</div>
-            <div class="toast-msg">A new version of Video Downloader Pro is ready!</div>
-        </div>
-        <div class="toast-actions">
-            <button id="viewUpdateBtn" class="btn btn-primary btn-small">View</button>
-            <button id="closeToastBtn" class="toast-close">✕</button>
-        </div>
-    </div>
 
     <script src="js/main.js"></script>
 </body>

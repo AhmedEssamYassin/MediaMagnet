@@ -1,3 +1,9 @@
+"""
+Self-update service for the application.
+Downloads a .zip archive of the new version, extracts it,
+and launches the updater to replace the entire app directory.
+"""
+
 import requests
 import sys
 import os
@@ -5,6 +11,7 @@ import subprocess
 import time
 import shutil
 import tempfile
+import zipfile
 from packaging import version
 from threading import Thread
 
@@ -44,7 +51,8 @@ class UpdateService:
 
     @staticmethod
     def _downloadTask(downloadUrl, progressCallback, completedCallback, errorCallback):
-        newExePath = None
+        newZipPath = None
+        extractDir = None
         try:
             # 1. Determine safe paths based on PyInstaller state
             if not getattr(sys, 'frozen', False):
@@ -52,87 +60,103 @@ class UpdateService:
                 return
 
             currentExePath = sys.executable
-            currentDir = os.path.dirname(currentExePath)
-            newExePath = currentExePath + ".new"
+            appDir = os.path.dirname(currentExePath)
             
-            # Locate updater.exe correctly whether it's a --onefile or --onedir build
-            meipass = getattr(sys, '_MEIPASS', currentDir)
-            possiblePaths = [
-                os.path.join(meipass, "updater.exe"),   # Location for --onefile build
-                os.path.join(currentDir, "updater.exe") # Location for --onedir build
-            ]
+            # Temp paths for the downloaded zip and extraction
+            newZipPath = os.path.join(tempfile.gettempdir(), "vdp_update.zip")
+            extractDir = os.path.join(tempfile.gettempdir(), "vdp_update")
             
-            updaterPath = None
-            for path in possiblePaths:
-                if os.path.exists(path):
-                    updaterPath = path
-                    break
+            # Clean up any leftover temp files from a previous failed update
+            if os.path.exists(extractDir):
+                shutil.rmtree(extractDir, ignore_errors=True)
+            
+            # Locate updater.exe in the app directory (--onedir layout)
+            updaterPath = os.path.join(appDir, "updater.exe")
+            if not os.path.exists(updaterPath):
+                # Fallback: check _MEIPASS for legacy --onefile builds
+                meipass = getattr(sys, '_MEIPASS', appDir)
+                updaterPath = os.path.join(meipass, "updater.exe")
                     
-            if not updaterPath:
+            if not os.path.exists(updaterPath):
                 if errorCallback: errorCallback("Updater executable not found in built assets!")
                 return
 
-            # Copy the updater out of the PyInstaller temp directory.
-            # PyInstaller deletes _MEIPASS when the main app closes. Running it from there
-            # will cause lock conflicts. Moving it to the OS temp folder guarantees safe execution.
+            # Copy the updater to a safe location outside the app directory.
+            # The updater will replace the entire app folder, so it can't run from inside it.
             safeUpdaterPath = os.path.join(tempfile.gettempdir(), "updater_run.exe")
             shutil.copy2(updaterPath, safeUpdaterPath)
 
-            # 2. Download the file with network resilience
-            response = requests.get(downloadUrl, stream=True, timeout=(10, 30))
-            response.raise_for_status() # Catches 404s and 500s immediately
+            # 2. Download the .zip archive with network resilience
+            response = requests.get(downloadUrl, stream=True, timeout=(10, 60))
+            response.raise_for_status()
             
             totalSize = int(response.headers.get('content-length', 0))
             downloaded = 0
             
-            with open(newExePath, 'wb') as file:
-                # Increased chunk size to 8192 for slightly faster disk writing
+            with open(newZipPath, 'wb') as file:
                 for data in response.iter_content(chunk_size=8192):
                     if not data:
                         break
                     file.write(data)
                     downloaded += len(data)
                     if progressCallback and totalSize > 0:
-                        # Cap progress at 1.0 (100%)
                         progressCallback(min(downloaded / totalSize, 1.0))
             
-            # Verify the integrity of the downloaded file
+            # Verify download integrity
             if totalSize > 0 and downloaded != totalSize:
-                if os.path.exists(newExePath):
-                    os.remove(newExePath)
                 if errorCallback: errorCallback("Download incomplete due to network drop!")
                 return
             
-            # 3. Download finished successfully
+            # 3. Extract the zip to a temp directory
+            with zipfile.ZipFile(newZipPath, 'r') as zf:
+                zf.extractall(extractDir)
+            
+            # The zip may contain a single top-level folder (e.g., "VideoDownloaderPro/").
+            # Detect this and point to the inner folder if present.
+            extractedContents = os.listdir(extractDir)
+            if len(extractedContents) == 1:
+                innerDir = os.path.join(extractDir, extractedContents[0])
+                if os.path.isdir(innerDir):
+                    extractDir = innerDir
+            
+            # 4. Download finished successfully
             if completedCallback:
                 completedCallback()
             
-            # 4. Launch isolated updater and exit
-            UpdateService._launchUpdater(safeUpdaterPath, currentExePath, newExePath)
+            # 5. Launch isolated updater and exit
+            # Args: updater.exe <appDir> <updateDir> <exeName>
+            exeName = os.path.basename(currentExePath)
+            UpdateService._launchUpdater(safeUpdaterPath, appDir, extractDir, exeName)
 
         except Exception as e:
-            # Cleanup any partially downloaded ghost files
-            if newExePath and os.path.exists(newExePath):
+            # Cleanup any partially downloaded files
+            if newZipPath and os.path.exists(newZipPath):
                 try:
-                    os.remove(newExePath)
+                    os.remove(newZipPath)
+                except Exception:
+                    pass
+            if extractDir and os.path.exists(extractDir):
+                try:
+                    shutil.rmtree(extractDir, ignore_errors=True)
                 except Exception:
                     pass
             if errorCallback:
                 errorCallback(f"Update failed: {str(e)}")
 
     @staticmethod
-    def _launchUpdater(updaterPath, oldExe, newExe):
+    def _launchUpdater(updaterPath, appDir, updateDir, exeName):
         """
         Launches the updater executable detached from the current process tree.
+        Args: updater.exe <appDir> <updateDir> <exeName>
         """
         try:
             subprocess.Popen(
-                [updaterPath, oldExe, newExe],
+                [updaterPath, appDir, updateDir, exeName],
                 creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP,
                 close_fds=True
             )
         except Exception as e:
             print(f"Failed to launch updater: {e}")
         finally:
-            # Exit main app so the updater can safely overwrite the .exe
+            # Exit main app so the updater can safely replace the directory
             os._exit(0)

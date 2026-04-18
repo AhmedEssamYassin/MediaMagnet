@@ -3,8 +3,6 @@ Data model for videos.
 """
 
 __all__ = [
-    "DownloadController",
-    "DownloadManager",
     "VideoInfo",
     "PlaylistInfo",
     "DownloadConfig",

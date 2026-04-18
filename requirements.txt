@@ -1,9 +1,9 @@
-pywebview==6.1
+pywebview==6.2.1
 plyer==2.1.0
 PyInstaller==6.19.0
 yt_dlp==2026.3.17
-requests==2.33.0
-packaging==26.0
+requests==2.33.1
+packaging==26.1
 certifi==2026.2.25
 brotli==1.2.0
 mutagen==1.47.0

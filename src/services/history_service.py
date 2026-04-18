@@ -1,5 +1,8 @@
+"""
+Persistent download history storage using a JSON file.
+"""
+
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict
@@ -22,12 +25,13 @@ class HistoryService:
         with open(self.historyFile, "w") as f:
             json.dump(self.history, f, indent=4)
 
-    def addEntry(self, title: str, url: str, path: str, status: str):
+    def addEntry(self, title: str, url: str, path: str, status: str, thumbnail: str = ""):
         entry = {
             "title": title,
             "url": url,
             "path": path,
             "status": status,
+            "thumbnail": thumbnail,
             "timestamp": datetime.now().isoformat()
         }
         self.history.insert(0, entry)

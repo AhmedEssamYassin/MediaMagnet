@@ -79,7 +79,3 @@ def isUrlSupported(url: str) -> bool:
         True if supported, False otherwise
     """
     return DownloaderFactory.getDownloader(url) is not None
-
-
-# Initialize default downloaders
-DownloaderFactory.initializeDefaultDownloaders()

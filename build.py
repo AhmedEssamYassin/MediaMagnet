@@ -245,19 +245,8 @@ def getBaseArgs():
     
     return args
 
-def buildOnefile():
-    """Build as single file executable"""
-    print("\n" + "=" * 60)
-    print(f"2/2: Building {APP_NAME} (One File) v{VERSION_NUMBER}...")
-    print("=" * 60)
-    buildArgs = getBaseArgs()
-    buildArgs.append('--onefile')
-    # PyInstaller uses UPX by default if found in PATH, so no extra arg needed here
-    PyInstaller.__main__.run(buildArgs)
-    print(f"\nBuild complete! Location: {DIST_DIR / f'{APP_NAME}.exe'}")
-
 def buildOnedir():
-    """Build as directory with executable and dependencies"""
+    """Build as directory with executable and dependencies (fast startup)"""
     print("\n" + "=" * 60)
     print(f"2/2: Building {APP_NAME} (One Directory) v{VERSION_NUMBER}...")
     print("=" * 60)
@@ -272,6 +261,30 @@ def buildOnedir():
 
     print(f"\nBuild complete! Location: {DIST_DIR / APP_NAME}")
 
+def buildOnefile():
+    """Build as single file executable (slow startup)"""
+    print("\n" + "=" * 60)
+    print(f"2/2: Building {APP_NAME} (One File) v{VERSION_NUMBER}...")
+    print("=" * 60)
+    buildArgs = getBaseArgs()
+    buildArgs.append('--onefile')
+    PyInstaller.__main__.run(buildArgs)
+    print(f"\nBuild complete! Location: {DIST_DIR / f'{APP_NAME}.exe'}")
+
+def zipOutput():
+    """Create a distributable .zip from the onedir output folder"""
+    outputDir = DIST_DIR / APP_NAME
+    if not outputDir.exists():
+        print("WARNING: Output directory not found, skipping zip.")
+        return None
+    
+    zipName = f"{APP_NAME}-v{VERSION_NUMBER}-Windows"
+    zipPath = DIST_DIR / zipName
+    print(f"\nCreating distributable archive: {zipName}.zip")
+    shutil.make_archive(str(zipPath), 'zip', str(DIST_DIR), APP_NAME)
+    print(f"✓ Archive created: {zipPath}.zip")
+    return f"{zipPath}.zip"
+
 # --- User Interface ---
 
 def showMenu():
@@ -280,8 +293,8 @@ def showMenu():
     print(f"   {APP_NAME} v{VERSION_NUMBER} - Build Script")
     print("=" * 60)
     print("\nBuild Options:")
-    print("   1. One File (single .exe, slower startup)")
-    print("   2. One Directory (folder with .exe, faster startup)")
+    print("   1. One Directory (folder + .zip, fast startup) [Recommended]")
+    print("   2. One File (single .exe, slow startup)")
     print("   3. Custom spec file (uses specific yt-dlp hooks & UPX)")
     print("   4. Clean build directories only")
     print("   0. Exit")
@@ -313,9 +326,10 @@ def main():
                 buildUpdater()
 
                 if userChoice == "1":
-                    buildOnefile()
-                elif userChoice == "2":
                     buildOnedir()
+                    zipOutput()
+                elif userChoice == "2":
+                    buildOnefile()
                 elif userChoice == "3":
                     specFile = createSpecFile()
                     PyInstaller.__main__.run([str(specFile), '--clean', '--noconfirm'])

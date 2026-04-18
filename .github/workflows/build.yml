@@ -64,22 +64,26 @@ jobs:
           Write-Host "✅ FFmpeg placed in assets/"
         shell: pwsh
 
-      # --- Auto-select Option 1 (One file) ---
-      # pipe "1" into the script to bypass the menu
+      # --- Auto-select Option 1 (One Directory + zip) ---
       - name: Run PyInstaller build
         run: echo "1" | python build.py
         shell: pwsh
-      # ----------------------------------------------------
-        
+
       - name: Verify build output
         run: |
-          # Check inside the folder "VideoDownloaderPro"
-          if (Test-Path "dist/VideoDownloaderPro.exe") {
+          if (Test-Path "dist/VideoDownloaderPro/VideoDownloaderPro.exe") {
             Write-Host "Executable built successfully"
-            Get-Item dist/VideoDownloaderPro.exe | Select-Object Name, Length, LastWriteTime
+            Get-Item dist/VideoDownloaderPro/VideoDownloaderPro.exe | Select-Object Name, Length, LastWriteTime
           } else {
-            Write-Host "Executable not found in folder!"
+            Write-Host "Executable not found in output folder!"
             exit 1
+          }
+          # Also verify the zip was created
+          $zip = Get-Item dist/VideoDownloaderPro-v*-Windows.zip -ErrorAction SilentlyContinue
+          if ($zip) {
+            Write-Host "Archive created: $($zip.Name) ($([math]::Round($zip.Length / 1MB, 1)) MB)"
+          } else {
+            Write-Host "WARNING: .zip archive not found"
           }
         shell: pwsh
 
@@ -87,14 +91,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: VideoDownloaderPro-Windows
-          path: dist/VideoDownloaderPro.exe
+          path: dist/VideoDownloaderPro-v*-Windows.zip
           if-no-files-found: error
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dist/VideoDownloaderPro.exe
+          files: dist/VideoDownloaderPro-v*-Windows.zip
           draft: false
           prerelease: false
           generate_release_notes: true

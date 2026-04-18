@@ -102,7 +102,7 @@ class TikTokDownloader(BaseDownloader):
     def getDefaultFormats(self) -> list:
         return ['best', '720p', '480p']
     
-    def _buildYdlOpts(self, outputPath, quality, formatType, progressCallback, is_photo_post=False, title: str = None):
+    def _buildYdlOpts(self, outputPath, quality, formatType, progressCallback, isPhotoPost=False, title: str = None):
         """Build yt-dlp options"""
 
         if title:
@@ -118,7 +118,7 @@ class TikTokDownloader(BaseDownloader):
         }
         
         # For photo posts or MP3 format, extract audio
-        if formatType == 'MP3' or is_photo_post:
+        if formatType == 'MP3' or isPhotoPost:
             baseOpts.update({
                 'format': 'bestaudio/best',
                 'postprocessors': [{

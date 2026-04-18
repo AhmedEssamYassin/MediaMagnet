@@ -22,7 +22,7 @@ def setupGlobalFfmpeg():
     ffmpegExe = "ffmpeg.exe"
     ffmpegPath = None
 
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         # Check ROOT of _MEIPASS (if added via --add-binary)
         path1 = os.path.join(sys._MEIPASS, ffmpegExe)
         # Check ASSETS folder inside _MEIPASS (if added via --add-data)
@@ -50,7 +50,8 @@ def main():
     """Application entry point"""
     try:
         savedTheme = SettingsManager.getTheme()  
-    except:
+    except Exception as e:
+        print(f"Failed to load theme: {e}")
         savedTheme = "dark"
 
     controller = DownloadController()
@@ -65,7 +66,7 @@ def main():
         width=1000,
         height=750,
         min_size=(800, 600),
-        background_color='#141726' if savedTheme == 'dark' else '#fafafa'
+        background_color="#141726" if savedTheme == "dark" else "#fafafa"
     )
     
     api.setWindow(window)

@@ -1,4 +1,10 @@
-import os, sys
+"""
+Desktop notification service for download completion and error alerts.
+Handles Windows NOTIFYICONDATAW API character limits and icon resolution.
+"""
+
+import os
+import sys
 from abc import ABC, abstractmethod
 
 class NotificationService(ABC):

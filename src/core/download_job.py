@@ -12,11 +12,12 @@ class DownloadStatus:
 
 class DownloadJob:
     """Represents a single video download task"""
-    def __init__(self, url, title, config):
+    def __init__(self, url, title, config, thumbnail=""):
         self.id = str(uuid.uuid4())
         self.url = url
         self.title = title
         self.config = config
+        self.thumbnail = thumbnail
         self.status = DownloadStatus.PENDING
         self.progress = 0.0
         self.speed = ""

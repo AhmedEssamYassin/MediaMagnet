@@ -3,6 +3,8 @@ App Services.
 """
 
 __all__ = [
+    "HistoryService",
+    "NotificationService",
     "DesktopNotifier",
 ]
 

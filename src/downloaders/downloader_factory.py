@@ -68,7 +68,7 @@ class DownloaderFactory:
         if not cls._downloaders:
             cls.initializeDefaultDownloaders()
         
-        return [d.get_provider_name() for d in cls._downloaders]
+        return [d.getProviderName() for d in cls._downloaders]
     
     @classmethod
     def isSupported(cls, url: str) -> bool:

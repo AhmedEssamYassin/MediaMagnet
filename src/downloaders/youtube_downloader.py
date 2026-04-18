@@ -1,4 +1,3 @@
-# pyre-ignore-all-errors
 """
 YouTube downloader implementation
 """
@@ -44,7 +43,18 @@ class YouTubeDownloader(BaseDownloader):
                     for entry in info['entries']:
                         if entry: # Ensure entry is not None
                             videoUrl = f"https://www.youtube.com/watch?v={entry['id']}"
-                            videos.append({'title': entry.get('title', 'N/A'), 'url': videoUrl})
+                            duration = entry.get('duration', 0)
+                            thumb = ''
+                            if 'thumbnails' in entry and len(entry['thumbnails']) > 0:
+                                thumb = entry['thumbnails'][0]['url']
+                            elif 'thumbnail' in entry:
+                                thumb = entry['thumbnail']
+                            videos.append({
+                                'title': entry.get('title', 'N/A'), 
+                                'url': videoUrl,
+                                'thumbnail': thumb,
+                                'duration': duration
+                            })
                     return PlaylistInfo(title=info.get('title', 'N/A'), videos=videos)
                 else:
                     formats = []

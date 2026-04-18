@@ -145,18 +145,44 @@ function initApp() {
         historyModal.classList.remove('active');
     });
 
-    document.getElementById('clearHistoryBtn').addEventListener('click', async () => {
-        if(confirm("Are you sure you want to clear your entire download history?")) {
-            const res = await window.pywebview.api.clearHistory();
-            if(res.success) {
-                historyListContainer.innerHTML = '';
-                historyListContainer.appendChild(emptyHistoryMsg);
-                emptyHistoryMsg.style.display = 'block';
-            } else {
-                alert("Failed to clear history: " + res.error);
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        showConfirmDialog(
+            'Clear Download History',
+            'This will permanently delete your entire download history. This action cannot be undone.',
+            async () => {
+                const res = await window.pywebview.api.clearHistory();
+                if(res.success) {
+                    historyListContainer.innerHTML = '';
+                    historyListContainer.appendChild(emptyHistoryMsg);
+                    emptyHistoryMsg.style.display = 'block';
+                }
             }
-        }
+        );
     });
+
+    function showConfirmDialog(title, message, onConfirm) {
+        const dialog = document.getElementById('confirmDialog');
+        document.getElementById('confirmDialogTitle').innerText = title;
+        document.getElementById('confirmDialogMessage').innerText = message;
+        dialog.classList.add('active');
+        
+        const confirmBtn = document.getElementById('confirmDialogConfirm');
+        const cancelBtn = document.getElementById('confirmDialogCancel');
+        
+        // Clone and replace to remove old listeners
+        const newConfirm = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+        const newCancel = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+        
+        newConfirm.addEventListener('click', () => {
+            dialog.classList.remove('active');
+            onConfirm();
+        });
+        newCancel.addEventListener('click', () => {
+            dialog.classList.remove('active');
+        });
+    }
 
     function loadHistory() {
         window.pywebview.api.getHistory().then(res => {
@@ -207,11 +233,13 @@ function initApp() {
                     </div>
                 </div>
                 <div class="history-actions">
-                    <button class="btn icon-button-box" title="Open Folder Location" onclick="window.pywebview.api.openPath('${(item.outputPath || '').replace(/\\/g, '\\\\')}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <button class="icon-button" title="Open Folder Location" onclick="window.pywebview.api.openPath('${(item.outputPath || '').replace(/\\/g, '\\\\')}')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </button>
-                    ${item.url && item.url !== 'playlist' ? `<button class="btn icon-button-box" title="Download Again" onclick="window.redownloadFromHistory('${item.url}')">⬇️</button>` : ''}
-                    <button class="btn icon-button-box" title="Remove from History" onclick="window.deleteHistoryEntry(${item.index})">🗑️</button>
+                    ${item.url && item.url !== 'playlist' ? `<button class="icon-button" title="Download Again" onclick="window.redownloadFromHistory('${item.url}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></button>` : ''}
+                    <button class="icon-button" style="color: var(--danger);" title="Remove from History" onclick="window.deleteHistoryEntry(${item.index})">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
                 </div>
             `;
             historyListContainer.appendChild(card);
@@ -329,6 +357,50 @@ function initApp() {
 
     // --- Auto Update Toast ---
     const updateToast = document.getElementById('updateToast');
+
+    // Downloads Modal logic
+    const activeDownloadsBtn = document.getElementById('activeDownloadsBtn');
+    const downloadsModal = document.getElementById('downloadsModal');
+    if (activeDownloadsBtn) {
+        activeDownloadsBtn.addEventListener('click', () => {
+            downloadsModal.classList.add('active');
+        });
+    }
+
+    function updateDownloadsBadge() {
+        const badge = document.getElementById('activeDownloadsBadge');
+        const minibar = document.getElementById('activeDownloadsMiniBar');
+        const minibarText = document.getElementById('minibarText');
+        
+        if (!badge) return;
+        
+        let activeCount = 0;
+        document.querySelectorAll('.download-card').forEach(card => {
+            const status = card.querySelector('.d-status').innerText;
+            if (!['Completed', 'Failed', 'Cancelled', 'Error'].includes(status)) {
+                activeCount++;
+            }
+        });
+
+        if (activeCount > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = activeCount;
+            if(minibar) {
+                minibar.style.display = 'flex';
+                minibarText.innerText = activeCount === 1 ? '1 download in progress...' : `${activeCount} downloads in progress...`;
+            }
+        } else {
+            badge.style.display = 'none';
+            if(minibar) minibar.style.display = 'none';
+        }
+        
+        // Also update empty state inside modal
+        const emptyState = document.getElementById('emptyDownloads');
+        const totalCount = document.querySelectorAll('.download-card').length;
+        if (emptyState) {
+            emptyState.style.display = totalCount === 0 ? 'block' : 'none';
+        }
+    }
     const viewUpdateBtn = document.getElementById('viewUpdateBtn');
     const closeToastBtn = document.getElementById('closeToastBtn');
 
@@ -429,8 +501,8 @@ function initApp() {
         fetchBtn.querySelector('.btn-text').style.display = 'none';
         fetchBtn.querySelector('.spinner').style.display = 'block';
         
-        document.getElementById('previewEmpty').style.display = 'block';
-        document.getElementById('previewContent').style.display = 'none';
+        document.getElementById('previewEmpty').style.display = 'flex';
+        document.getElementById('previewPlaylist').style.display = 'none';
         
         try {
             const result = await window.pywebview.api.fetchVideoInfo(url);
@@ -491,8 +563,8 @@ function initApp() {
         urlInput.value = '';
         fetchBtn.disabled = true;
         downloadBtn.disabled = true;
-        document.getElementById('previewEmpty').style.display = 'block';
-        document.getElementById('previewContent').style.display = 'none';
+        document.getElementById('previewEmpty').style.display = 'flex';
+        document.getElementById('previewPlaylist').style.display = 'none';
         
         currentFetchResult = null;
     });
@@ -522,7 +594,21 @@ function initApp() {
             
             const label = document.createElement('label');
             label.htmlFor = 'pl_item_' + idx;
-            label.innerText = entry.title || `Video ${idx+1}`;
+            label.className = 'playlist-item-content';
+            
+            let thumbHtml = '';
+            if (entry.thumbnail) {
+                thumbHtml = `<div class="pl-thumb-wrapper"><img src="${entry.thumbnail}" class="pl-thumb"><span class="pl-duration">${entry.duration || ''}</span></div>`;
+            } else {
+                thumbHtml = `<div class="pl-thumb-wrapper empty-thumb"><span class="pl-duration">${entry.duration || ''}</span></div>`;
+            }
+            
+            label.innerHTML = `
+                ${thumbHtml}
+                <div class="pl-details">
+                    <div class="pl-title">${entry.title || `Video ${idx+1}`}</div>
+                </div>
+            `;
             
             item.appendChild(checkbox);
             item.appendChild(label);
@@ -553,15 +639,41 @@ function initApp() {
             return;
         }
         
-        // Show first selected in preview just as visual feedback
-        const firstSelectedEntry = playlistEntries.find(e => (e.url || e.webpage_url || e.id) === selected[0]);
-        if(firstSelectedEntry) {
-            showVideoPreview({
-                title: "[Playlist] " + (firstSelectedEntry.title || "Selected Videos"),
-                duration: "Multiple",
-                thumbnail: firstSelectedEntry.thumbnail || "",
-                url: null // Handled differently in download loop
-            });
+        const selectedEntries = playlistEntries.filter(e => selected.includes(e.url || e.webpage_url || e.id));
+        
+        document.getElementById('previewEmpty').style.display = 'none';
+        const plContainer = document.getElementById('previewPlaylist');
+        plContainer.style.display = 'flex';
+        
+        document.getElementById('previewPlaylistTitle').innerText = `Selected Videos (${selectedEntries.length})`;
+        
+        const container = document.getElementById('previewPlaylistItems');
+        container.innerHTML = '';
+        
+        selectedEntries.forEach((entry, idx) => {
+            const item = document.createElement('div');
+            item.className = 'playlist-item';
+            
+            let thumbHtml = '';
+            if (entry.thumbnail) {
+                thumbHtml = `<div class="pl-thumb-wrapper" style="width: 80px; height: 45px;"><img src="${entry.thumbnail}" class="pl-thumb"><span class="pl-duration" style="font-size:0.6rem;">${entry.duration || ''}</span></div>`;
+            } else {
+                thumbHtml = `<div class="pl-thumb-wrapper empty-thumb" style="width: 80px; height: 45px;"><span class="pl-duration" style="font-size:0.6rem;">${entry.duration || ''}</span></div>`;
+            }
+            
+            item.innerHTML = `
+                <div class="playlist-item-content">
+                    ${thumbHtml}
+                    <div class="pl-details">
+                        <div class="pl-title" style="font-size: 0.85rem;">${entry.title || `Video ${idx+1}`}</div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+        
+        if (outputPath.value) {
+            downloadBtn.disabled = false;
         }
     });
 
@@ -572,17 +684,33 @@ function initApp() {
     // --- Video Preview ---
     function showVideoPreview(data) {
         document.getElementById('previewEmpty').style.display = 'none';
-        document.getElementById('previewContent').style.display = 'flex';
+        const plContainer = document.getElementById('previewPlaylist');
+        plContainer.style.display = 'flex';
         
-        const thumbImg = document.getElementById('thumbnail');
-        thumbImg.onerror = function() {
-            this.onerror = null;
-            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="%23333"/><text x="50%" y="50%" fill="white" font-family="sans-serif" text-anchor="middle" dy=".3em">Video</text></svg>';
-        };
-        thumbImg.src = data.thumbnail || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="%23333"/><text x="50%" y="50%" fill="white" font-family="sans-serif" text-anchor="middle" dy=".3em">Video</text></svg>';
+        document.getElementById('previewPlaylistTitle').innerText = `Selected Video`;
         
-        document.getElementById('videoTitle').innerText = data.title;
-        document.getElementById('videoDuration').innerText = data.duration;
+        const container = document.getElementById('previewPlaylistItems');
+        container.innerHTML = '';
+        
+        const item = document.createElement('div');
+        item.className = 'playlist-item';
+        
+        let thumbHtml = '';
+        if (data.thumbnail) {
+            thumbHtml = `<div class="pl-thumb-wrapper" style="width: 80px; height: 45px;"><img src="${data.thumbnail}" class="pl-thumb"><span class="pl-duration" style="font-size:0.6rem;">${data.duration || ''}</span></div>`;
+        } else {
+            thumbHtml = `<div class="pl-thumb-wrapper empty-thumb" style="width: 80px; height: 45px;"><span class="pl-duration" style="font-size:0.6rem;">${data.duration || ''}</span></div>`;
+        }
+        
+        item.innerHTML = `
+            <div class="playlist-item-content">
+                ${thumbHtml}
+                <div class="pl-details">
+                    <div class="pl-title" style="font-size: 0.95rem;">${data.title}</div>
+                </div>
+            </div>
+        `;
+        container.appendChild(item);
         
         currentFetchResult.url = data.url; // Ensure we track the URL
         
@@ -653,13 +781,14 @@ function initApp() {
 
     // Cancellation UI event delegation
     document.getElementById('downloadsList').addEventListener('click', (e) => {
-        if(e.target.classList.contains('cancel-job-btn')) {
-            const card = e.target.closest('.download-card');
+        const cancelBtn = e.target.closest('.cancel-job-btn');
+        if(cancelBtn) {
+            const card = cancelBtn.closest('.download-card');
             if (card) {
                 const id = card.dataset.id;
                 window.pywebview.api.cancelDownload(id);
-                e.target.disabled = true;
-                e.target.innerText = 'Stopping...';
+                cancelBtn.disabled = true;
+                cancelBtn.innerHTML = '<span style="font-size:10px;">Stop...</span>';
             }
         }
     });
@@ -678,13 +807,15 @@ function initApp() {
             
             setTimeout(() => {
                 card.style.opacity = '0';
-                setTimeout(() => card.remove(), 300);
+                setTimeout(() => {
+                    card.remove();
+                    updateDownloadsBadge();
+                }, 300);
             }, 5000);
         }
     });
 
     function createOrUpdateJobCard(job) {
-        document.getElementById('emptyDownloads').style.display = 'none';
         const list = document.getElementById('downloadsList');
         let card = document.querySelector(`.download-card[data-id="${job.id}"]`);
         
@@ -710,12 +841,31 @@ function initApp() {
         card.querySelector('.progress-bar-fill').style.width = pct + '%';
         card.querySelector('.d-percent').innerText = pct + '%';
         
-        if (job.speed || job.eta) {
-            let text = job.speed || '';
-            if (job.eta) text += text ? ` • ETA: ${job.eta}` : `ETA: ${job.eta}`;
-            card.querySelector('.d-speed').innerText = text;
+        if (job.totalBytes) {
+            const mb = (job.totalBytes / (1024 * 1024)).toFixed(1);
+            card.querySelector('.d-size').innerText = `${mb} MB`;
+            card.querySelector('.d-size').style.display = 'inline';
+        } else {
+            card.querySelector('.d-size').style.display = 'none';
+        }
+        
+        if (job.speed) {
+            card.querySelector('.d-speed').innerText = job.speed;
+            card.querySelector('.d-speed').style.display = 'inline';
         } else if (job.status === 'Downloading...') {
             card.querySelector('.d-speed').innerText = 'Starting...';
+            card.querySelector('.d-speed').style.display = 'inline';
+        } else {
+            card.querySelector('.d-speed').style.display = 'none';
         }
+        
+        if (job.eta) {
+            card.querySelector('.d-eta').innerText = `ETA: ${job.eta}`;
+            card.querySelector('.d-eta').style.display = 'inline';
+        } else {
+            card.querySelector('.d-eta').style.display = 'none';
+        }
+        
+        updateDownloadsBadge();
     }
 }

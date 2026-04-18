@@ -18,7 +18,7 @@ class SettingsManager:
     SETTINGS_FILE = SETTINGS_DIR / "user_settings.json"
     
     # Default settings (loaded from assets/data/default_config.json)
-    _default_settings = None
+    _defaultSettings = None
     
     @classmethod
     def _ensureSettingsDir(cls):
@@ -28,11 +28,11 @@ class SettingsManager:
     @classmethod
     def _loadDefaultSettings(cls) -> Dict[str, Any]:
         """Load default settings from assets"""
-        if cls._default_settings is None:
+        if cls._defaultSettings is None:
             from .asset_loader import AssetLoader
             config = AssetLoader.loadConfig()
-            cls._default_settings = config.get('settings', {})
-        return cls._default_settings.copy()
+            cls._defaultSettings = config.get('settings', {})
+        return cls._defaultSettings.copy()
     
     @classmethod
     def loadSettings(cls) -> Dict[str, Any]:
@@ -127,9 +127,9 @@ class SettingsManager:
         return cls.getSetting('default_format', 'MP4')
     
     @classmethod
-    def setDefaultFormat(cls, format: str) -> bool:
+    def setDefaultFormat(cls, formatType: str) -> bool:
         """Set default output format"""
-        return cls.setSetting('default_format', format)
+        return cls.setSetting('default_format', formatType)
     
     @classmethod
     def areNotificationsEnabled(cls) -> bool:
@@ -203,24 +203,3 @@ class SettingsManager:
         except Exception as e:
             print(f"Error importing settings: {e}")
             return False
-
-
-# Convenience functions for backward compatibility
-def loadSettings() -> Dict[str, Any]:
-    """Load user settings"""
-    return SettingsManager.loadSettings()
-
-
-def saveSettings(settings: Dict[str, Any]) -> bool:
-    """Save user settings"""
-    return SettingsManager.saveSettings(settings)
-
-
-def getSetting(key: str, default: Any = None) -> Any:
-    """Get a specific setting"""
-    return SettingsManager.getSetting(key, default)
-
-
-def setSetting(key: str, value: Any) -> bool:
-    """Set a specific setting"""
-    return SettingsManager.setSetting(key, value)
