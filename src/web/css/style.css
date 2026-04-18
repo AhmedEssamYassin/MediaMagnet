@@ -429,6 +429,7 @@ body {
     border-radius: var(--radius-md);
     padding: 4px;
     border: 1px solid var(--border);
+    height: 38px;
 }
 
 .segmented-control input[type="radio"] {
@@ -441,7 +442,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 6px 0;
+    padding: 0;
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--text-muted);
@@ -458,7 +459,8 @@ body {
 
 .modern-select {
     width: 100%;
-    padding: 8px 12px;
+    height: 38px;
+    padding: 0 12px;
     border-radius: var(--radius-md);
     background-color: var(--bg-card);
     border: 1px solid var(--border);
@@ -1007,4 +1009,47 @@ body {
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+}
+
+/* Custom Context Menu (pywebview suppresses native) */
+.ctx-menu {
+    position: fixed;
+    z-index: 10000;
+    min-width: 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 4px 0;
+    display: none;
+}
+
+.ctx-menu.visible {
+    display: block;
+}
+
+.ctx-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.ctx-menu-item:hover {
+    background: var(--bg-hover);
+}
+
+.ctx-menu-item.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.ctx-menu-sep {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
 }

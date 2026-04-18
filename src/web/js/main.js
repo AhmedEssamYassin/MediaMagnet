@@ -449,7 +449,7 @@ function initApp() {
 
     formatRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-            if (e.target.value === 'MP3') {
+            if (e.target.value.toLowerCase() === 'mp3') {
                 qualitySelect.disabled = true;
                 qualitySelect.parentElement.style.opacity = '0.5';
             } else {
@@ -869,3 +869,82 @@ function initApp() {
         updateDownloadsBadge();
     }
 }
+
+// ===== Custom Context Menu for Input Fields =====
+// pywebview suppresses the native browser right-click menu,
+// so we provide Cut/Copy/Paste/Select All for text inputs.
+(function() {
+    const ctxMenu = document.getElementById("ctxMenu");
+    if (!ctxMenu) return;
+
+    let targetInput = null;
+
+    // Show on right-click over input/textarea elements
+    document.addEventListener("contextmenu", function(e) {
+        const el = e.target;
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+            e.preventDefault();
+            targetInput = el;
+
+            // Position menu at cursor
+            ctxMenu.style.left = e.clientX + "px";
+            ctxMenu.style.top = e.clientY + "px";
+            ctxMenu.classList.add("visible");
+
+            // Enable/disable cut based on readonly
+            const cutItem = ctxMenu.querySelector('[data-action="cut"]');
+            if (el.readOnly) {
+                cutItem.classList.add("disabled");
+            } else {
+                cutItem.classList.remove("disabled");
+            }
+        } else {
+            ctxMenu.classList.remove("visible");
+        }
+    });
+
+    // Hide when clicking anywhere else
+    document.addEventListener("click", function() {
+        ctxMenu.classList.remove("visible");
+    });
+
+    // Handle menu item clicks
+    ctxMenu.addEventListener("click", async function(e) {
+        const action = e.target.closest(".ctx-menu-item")?.dataset.action;
+        if (!action || !targetInput) return;
+
+        targetInput.focus();
+
+        switch (action) {
+            case "cut":
+                if (!targetInput.readOnly) {
+                    document.execCommand("cut");
+                }
+                break;
+            case "copy":
+                document.execCommand("copy");
+                break;
+            case "paste":
+                try {
+                    const text = await window.pywebview.api.getClipboard();
+                    if (text) {
+                        // Insert at cursor position instead of replacing everything
+                        const start = targetInput.selectionStart;
+                        const end = targetInput.selectionEnd;
+                        const current = targetInput.value;
+                        targetInput.value = current.slice(0, start) + text + current.slice(end);
+                        targetInput.selectionStart = targetInput.selectionEnd = start + text.length;
+                        targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+                } catch (err) {
+                    console.error("Paste failed:", err);
+                }
+                break;
+            case "selectall":
+                targetInput.select();
+                break;
+        }
+
+        ctxMenu.classList.remove("visible");
+    });
+})();

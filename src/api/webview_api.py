@@ -163,6 +163,17 @@ class WebViewApi:
             print(f"Error opening explicit path: {e}")
             return {"success": False, "error": str(e)}
 
+    def getClipboard(self):
+        """Read clipboard text via tkinter to bypass WebView2 permission prompts"""
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            text = root.clipboard_get()
+            root.destroy()
+            return text
+        except Exception:
+            return ""
+
     def cancelDownload(self, jobId):
         """Called by JS to cancel a specific job"""
         try:

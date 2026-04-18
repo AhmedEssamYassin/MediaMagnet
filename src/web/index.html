@@ -442,6 +442,15 @@
         </div>
     </template>
 
+    <!-- Custom Context Menu (pywebview suppresses native) -->
+    <div id="ctxMenu" class="ctx-menu">
+        <div class="ctx-menu-item" data-action="cut">✂️ Cut</div>
+        <div class="ctx-menu-item" data-action="copy">📋 Copy</div>
+        <div class="ctx-menu-item" data-action="paste">📌 Paste</div>
+        <div class="ctx-menu-sep"></div>
+        <div class="ctx-menu-item" data-action="selectall">🔘 Select All</div>
+    </div>
+
     <script src="js/main.js"></script>
 </body>
 </html>
