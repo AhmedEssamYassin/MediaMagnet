@@ -53,7 +53,7 @@ class WebViewApi:
             if isPlaylist:
                 cleanEntries = []
                 for entry in info.videos:
-                    durationSec = entry.get('duration', 0)
+                    durationSec = int(entry.get('duration', 0) or 0)
                     mins, secs = divmod(durationSec, 60)
                     hrs, mins = divmod(mins, 60)
                     durationStr = f"{hrs:02d}:{mins:02d}:{secs:02d}" if hrs > 0 else f"{mins:02d}:{secs:02d}"
@@ -88,7 +88,7 @@ class WebViewApi:
         """Called by JS to start a single download"""
         try:
             from ..data_models import DownloadConfig
-            config = DownloadConfig(url=url, outputPath=outputPath, quality=quality, formatType=formatType)
+            config = DownloadConfig(url=url, outputPath=outputPath, quality=quality, formatType=formatType.upper())
 
             self._controller.startDownload(config)
             return {"success": True}
@@ -100,7 +100,7 @@ class WebViewApi:
         try:
             from ..data_models import DownloadConfig
             # Pass a dummy url for the config since it's a playlist. The controller will use selectedUrls.
-            config = DownloadConfig(url="playlist", outputPath=outputPath, quality=quality, formatType=formatType)
+            config = DownloadConfig(url="playlist", outputPath=outputPath, quality=quality, formatType=formatType.upper())
             self._controller.startDownload(config, selectedVideos=selectedUrls)
             return {"success": True}
         except Exception as e:
@@ -306,7 +306,7 @@ class WebViewApi:
             "totalBytes": getattr(job, "totalBytes", 0)
         }
 
-        jsonStr = json.dumps(jobData).replace("'", "\\'")
+        jsonStr = json.dumps(jobData)
         jsCmd = f"window.dispatchEvent(new CustomEvent('{eventName}', {{detail: {jsonStr}}}));"
         self._safeExecuteJs(jsCmd)
 
@@ -327,7 +327,7 @@ class WebViewApi:
             "id": getattr(job, "id", "unknown"),
             "error": str(errorMsg)
         }
-        jsonStr = json.dumps(jobData).replace("'", "\\'")
+        jsonStr = json.dumps(jobData)
         jsCmd = f"window.dispatchEvent(new CustomEvent('download_error', {{detail: {jsonStr}}}));"
         self._safeExecuteJs(jsCmd)
 

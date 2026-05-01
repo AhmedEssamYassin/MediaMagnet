@@ -468,6 +468,15 @@ function initApp() {
         downloadBtn.disabled = true;
     });
 
+    urlInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (urlInput.value.trim().length > 0 && !fetchBtn.disabled) {
+                fetchBtn.click();
+            }
+        }
+    });
+
     // Path Browse
     browseBtn.addEventListener('click', () => {
         window.pywebview.api.browseDirectory(outputPath.value).then(path => {
@@ -774,6 +783,14 @@ function initApp() {
             // Hide cancel button on fail
             const btn = card.querySelector('.cancel-job-btn');
             if(btn) btn.style.display = 'none';
+            
+            setTimeout(() => {
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    updateDownloadsBadge();
+                }, 300);
+            }, 8000);
         } else {
             alert('Download Error: ' + (job.error || job.errorMsg || 'Unknown Error'));
         }

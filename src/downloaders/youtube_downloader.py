@@ -25,14 +25,43 @@ class YouTubeDownloader(BaseDownloader):
         ]
         return any(re.search(pattern, url) for pattern in youtubePatterns)
     
+    def _isSingleVideo(self, url: str) -> bool:
+        """Check if URL points to a single video rather than a playlist/channel"""
+        if "youtu.be/" in url or "embed/" in url or "/v/" in url:
+            return True
+        from urllib.parse import urlparse, parse_qs
+        parsed = urlparse(url)
+        if "youtube" in parsed.netloc and parsed.path == "/watch":
+            params = parse_qs(parsed.query)
+            if "v" in params:
+                return True
+        return False
+
+    def _stripPlaylistParams(self, url: str) -> str:
+        """Remove &list= and &index= params so yt-dlp treats URL as single video"""
+        if not self._isSingleVideo(url):
+            return url
+            
+        from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+        parsed = urlparse(url)
+        params = parse_qs(parsed.query)
+        params.pop("list", None)
+        params.pop("index", None)
+        cleanQuery = urlencode(params, doseq=True)
+        return urlunparse(parsed._replace(query=cleanQuery))
+
     def getVideoInfo(self, url: str) -> VideoInfo:
         """Fetch YouTube video information"""
+        isSingle = self._isSingleVideo(url)
+        url = self._stripPlaylistParams(url)
         ydlOpts = {
             'quiet': True,
             'no_warnings': True,
             'extract_flat': 'in_playlist',
             'ffmpeg_location': getFfmpegPath(),
         }
+        if isSingle:
+            ydlOpts['noplaylist'] = True
         
         try:
             with yt_dlp.YoutubeDL(ydlOpts) as ydl:
@@ -43,7 +72,7 @@ class YouTubeDownloader(BaseDownloader):
                     for entry in info['entries']:
                         if entry: # Ensure entry is not None
                             videoUrl = f"https://www.youtube.com/watch?v={entry['id']}"
-                            duration = entry.get('duration', 0)
+                            duration = int(entry.get('duration', 0) or 0)
                             thumb = ''
                             if 'thumbnails' in entry and len(entry['thumbnails']) > 0:
                                 thumb = entry['thumbnails'][0]['url']
@@ -69,7 +98,7 @@ class YouTubeDownloader(BaseDownloader):
                                 key=lambda x: int(x.split('x')[0]) if 'x' in x else 0,
                                 reverse=True)
                     
-                    durationSecs = info.get('duration', 0)
+                    durationSecs = int(info.get('duration', 0) or 0)
                     mins, secs = divmod(durationSecs, 60)
                     hours, mins = divmod(mins, 60)
                     formattedDuration = f"{hours:02d}:{mins:02d}:{secs:02d}" if hours else f"{mins:02d}:{secs:02d}"
@@ -88,6 +117,8 @@ class YouTubeDownloader(BaseDownloader):
     def downloadVideo(self, url: str, outputPath: str, quality: str, 
                       formatType: str, progressCallback, title: str = None):
         """Download YouTube video"""
+        isSingle = self._isSingleVideo(url)
+        url = self._stripPlaylistParams(url)
         
         if title:
             outtmpl = os.path.join(outputPath, f'{title}.%(ext)s')
@@ -96,7 +127,7 @@ class YouTubeDownloader(BaseDownloader):
 
         if formatType == "MP3":
             ydlOpts = {
-                'format': 'bestaudio/best',
+                'format': 'bestaudio',
                 'outtmpl': outtmpl,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -107,6 +138,8 @@ class YouTubeDownloader(BaseDownloader):
                 'ffmpeg_location': getFfmpegPath(),
                 'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
+            if isSingle:
+                ydlOpts['noplaylist'] = True
         else:
             ffmpegPath = getFfmpegPath()
             ffmpegAvailable = os.path.isfile(ffmpegPath)
@@ -131,6 +164,8 @@ class YouTubeDownloader(BaseDownloader):
                 'ffmpeg_location': ffmpegPath,
                 'concurrent_fragment_downloads': SettingsManager.getMaxConcurrentParts(),
             }
+            if isSingle:
+                ydlOpts['noplaylist'] = True
             
             if ffmpegAvailable:
                 ydlOpts['merge_output_format'] = 'mp4'

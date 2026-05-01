@@ -73,7 +73,7 @@ class FacebookDownloader(BaseDownloader):
         
         if formatType == "MP3":
             ydlOpts = {
-                'format': 'bestaudio/best',
+                'format': 'bestaudio',
                 'outtmpl': outtmpl,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',

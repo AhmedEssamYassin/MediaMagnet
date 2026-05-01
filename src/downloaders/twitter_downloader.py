@@ -78,7 +78,7 @@ class TwitterDownloader(BaseDownloader):
         
         if formatType == 'MP3':
             baseOpts.update({
-                'format': 'bestaudio/best',
+                'format': 'bestaudio',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',

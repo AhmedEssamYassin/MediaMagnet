@@ -120,7 +120,7 @@ class TikTokDownloader(BaseDownloader):
         # For photo posts or MP3 format, extract audio
         if formatType == 'MP3' or isPhotoPost:
             baseOpts.update({
-                'format': 'bestaudio/best',
+                'format': 'bestaudio',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
