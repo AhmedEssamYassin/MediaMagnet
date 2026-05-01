@@ -30,15 +30,15 @@ def getProjectVersion():
         configPath = PROJECT_ROOT / "assets" / "data" / "default_config.json"
         with open(configPath, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data.get("version", "2.0.0")
+            return data.get("version", "3.0.0")
     except Exception:
-        return "2.0.0"
+        return "3.0.0"
 
 # --- Project Configuration ---
-APP_NAME = "VideoDownloaderPro"
+APP_NAME = "MediaMagnet"
 VERSION_NUMBER = getProjectVersion()
 AUTHOR_NAME = "Ahmed Yassin"
-APP_DESCRIPTION = "Professional Video Downloader"
+APP_DESCRIPTION = "Professional Media Downloader"
 
 
 # --- Helper Functions ---

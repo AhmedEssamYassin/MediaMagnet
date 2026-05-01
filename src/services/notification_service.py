@@ -71,7 +71,7 @@ class DesktopNotifier(NotificationService):
                 kwargs = {
                     'title': safeTitle,
                     'message': safeMsg,
-                    'app_name': "Video Downloader Pro",
+                    'app_name': "MediaMagnet",
                     'timeout': 10
                 }
 

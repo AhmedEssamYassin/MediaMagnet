@@ -1,5 +1,5 @@
 """
-Standalone updater executable for Video Downloader Pro.
+Standalone updater executable for MediaMagnet.
 Replaces the entire app directory with a new version extracted from a .zip update.
 Built separately as a --onefile PyInstaller binary so it can run independently.
 
@@ -77,12 +77,12 @@ def performUpdate(appDir, updateDir, exeName, root, statusLabel):
     try:
         # updateDir might be inside a parent temp folder, clean the parent
         parentTemp = os.path.dirname(updateDir)
-        if "vdp_update" in os.path.basename(parentTemp):
+        if "mm_update" in os.path.basename(parentTemp):
             shutil.rmtree(parentTemp, ignore_errors=True)
         else:
             shutil.rmtree(updateDir, ignore_errors=True)
         # Also remove the downloaded zip if it still exists
-        zipPath = os.path.join(os.path.dirname(updateDir), "vdp_update.zip")
+        zipPath = os.path.join(os.path.dirname(updateDir), "mm_update.zip")
         if os.path.exists(zipPath):
             os.remove(zipPath)
     except Exception:

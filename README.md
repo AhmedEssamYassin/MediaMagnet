@@ -1,6 +1,6 @@
-# Video Downloader Pro — Modular Architecture with SOLID Principles & Design Patterns
+# MediaMagnet — Modular Architecture with SOLID Principles & Design Patterns
 
-> A robust, unified desktop application for downloading media from major platforms (YouTube, Facebook, Instagram, TikTok, X) while serving as a practical reference implementation of SOLID principles and Design Patterns in Python. Built on a modern **PyWebView + HTML/CSS/JS** frontend with an event-driven Python backend, Video Downloader Pro features live download telemetry, concurrent fragment acceleration, persistent settings, and a fully functional download history — all wrapped in a sleek multi-themed interface.
+> A robust, unified desktop application for downloading media from major platforms (YouTube, Facebook, Instagram, TikTok, X) while serving as a practical reference implementation of SOLID principles and Design Patterns in Python. Built on a modern **PyWebView + HTML/CSS/JS** frontend with an event-driven Python backend, MediaMagnet features live download telemetry, concurrent fragment acceleration, persistent settings, and a fully functional download history — all wrapped in a sleek multi-themed interface.
 
 ## Key Features
 
@@ -43,16 +43,16 @@
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | HTML5 / CSS3 / JavaScript | UI rendering, animations, dark/light themes |
-| **UI Runtime** | [PyWebView](https://pywebview.flowrl.com/) | Native window with embedded web engine |
-| **Backend** | Python 3.12+ | Business logic, download orchestration |
-| **Download Engine** | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Multi-platform video extraction & download |
-| **Media Processing** | [FFmpeg](https://ffmpeg.org/) | Audio extraction, video/audio stream merging |
-| **Notifications** | [plyer](https://github.com/kivy/plyer) | Cross-platform desktop notifications |
-| **Packaging** | [PyInstaller](https://pyinstaller.org/) | Single-file `.exe` distribution |
-| **CI/CD** | GitHub Actions | Automated build, artifact upload, and release creation |
+| Layer                | Technology                                 | Purpose                                                |
+| -------------------- | ------------------------------------------ | ------------------------------------------------------ |
+| **Frontend**         | HTML5 / CSS3 / JavaScript                  | UI rendering, animations, dark/light themes            |
+| **UI Runtime**       | [PyWebView](https://pywebview.flowrl.com/) | Native window with embedded web engine                 |
+| **Backend**          | Python 3.12+                               | Business logic, download orchestration                 |
+| **Download Engine**  | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Multi-platform video extraction & download             |
+| **Media Processing** | [FFmpeg](https://ffmpeg.org/)              | Audio extraction, video/audio stream merging           |
+| **Notifications**    | [plyer](https://github.com/kivy/plyer)     | Cross-platform desktop notifications                   |
+| **Packaging**        | [PyInstaller](https://pyinstaller.org/)    | Single-file `.exe` distribution                        |
+| **CI/CD**            | GitHub Actions                             | Automated build, artifact upload, and release creation |
 
 ---
 
@@ -208,8 +208,8 @@ Each downloader inherits from BaseDownloader (abstract)
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/AhmedEssamYassin/Video-Downloader-Pro.git
-cd Video-Downloader-Pro
+git clone https://github.com/AhmedEssamYassin/MediaMagnet.git
+cd MediaMagnet
 ```
 
 ### 2. Install Dependencies
@@ -345,7 +345,7 @@ Select option `1` for a single `.exe` file or option `2` for a directory build.
 The project includes a fully automated build pipeline (`.github/workflows/build.yml`):
 - **Trigger** — Push a version tag (`v*`) or manual dispatch
 - **Process** — Installs dependencies, downloads FFmpeg, runs `build.py` in non-interactive mode
-- **Output** — Uploads `VideoDownloaderPro.exe` as a build artifact and creates a GitHub Release
+- **Output** — Uploads `MediaMagnet.exe` as a build artifact and creates a GitHub Release
 
 ```bash
 # To trigger a release build:
@@ -355,7 +355,7 @@ git push origin v2.1.0
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -386,23 +386,23 @@ git push origin v2.1.0
 ## 📊 Module Complexity Comparison
 
 ### Before OCP (Monolithic)
-| Component | Lines | Complexity | Extensibility |
-|-----------|-------|------------|---------------|
-| download_manager.py | ~150 | High | ❌ Hard to extend |
-| **Total** | **~150** | **High** | **Requires modification** |
+| Component           | Lines    | Complexity | Extensibility             |
+| ------------------- | -------- | ---------- | ------------------------- |
+| download_manager.py | ~150     | High       | ❌ Hard to extend          |
+| **Total**           | **~150** | **High**   | **Requires modification** |
 
 ### After OCP (Modular — Current Architecture)
-| Module | Lines | Complexity | Purpose |
-|--------|-------|------------|---------|
-| base_downloader.py | ~70 | Low | Abstract contract |
-| youtube_downloader.py | ~135 | Medium | YouTube logic |
-| facebook_downloader.py | ~112 | Medium | Facebook logic |
-| instagram_downloader.py | ~105 | Medium | Instagram logic |
-| tiktok_downloader.py | ~155 | Medium | TikTok logic |
-| twitter_downloader.py | ~125 | Medium | Twitter/X logic |
-| downloader_factory.py | ~70 | Low | Provider selection |
-| download_manager.py | ~90 | Low | Facade |
-| **Total** | **~862** | **Low per file** | **✅ Just add files** |
+| Module                  | Lines    | Complexity       | Purpose              |
+| ----------------------- | -------- | ---------------- | -------------------- |
+| base_downloader.py      | ~70      | Low              | Abstract contract    |
+| youtube_downloader.py   | ~135     | Medium           | YouTube logic        |
+| facebook_downloader.py  | ~112     | Medium           | Facebook logic       |
+| instagram_downloader.py | ~105     | Medium           | Instagram logic      |
+| tiktok_downloader.py    | ~155     | Medium           | TikTok logic         |
+| twitter_downloader.py   | ~125     | Medium           | Twitter/X logic      |
+| downloader_factory.py   | ~70      | Low              | Provider selection   |
+| download_manager.py     | ~90      | Low              | Facade               |
+| **Total**               | **~862** | **Low per file** | **✅ Just add files** |
 
 ### Scalability Analysis
 

@@ -1,7 +1,7 @@
 """
-YouTube Downloader Pro - Main Entry Point
+MediaMagnet - Main Entry Point
 
-Modern Multi-Platform Video Downloader with Fancy GUI
+Modern Multi-Platform Media Downloader with Fancy GUI
 Supports: YouTube, Facebook, Instagram, TikTok (extensible to more platforms)
 """
 
@@ -60,7 +60,7 @@ def main():
     htmlPath = resourcePath("src/web/index.html")
 
     window = webview.create_window(
-        title="Video Downloader Pro",
+        title="MediaMagnet",
         url=htmlPath,
         js_api=api,
         width=1000,

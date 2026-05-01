@@ -63,8 +63,8 @@ class UpdateService:
             appDir = os.path.dirname(currentExePath)
             
             # Temp paths for the downloaded zip and extraction
-            newZipPath = os.path.join(tempfile.gettempdir(), "vdp_update.zip")
-            extractDir = os.path.join(tempfile.gettempdir(), "vdp_update")
+            newZipPath = os.path.join(tempfile.gettempdir(), "mm_update.zip")
+            extractDir = os.path.join(tempfile.gettempdir(), "mm_update")
             
             # Clean up any leftover temp files from a previous failed update
             if os.path.exists(extractDir):
@@ -111,7 +111,7 @@ class UpdateService:
             with zipfile.ZipFile(newZipPath, 'r') as zf:
                 zf.extractall(extractDir)
             
-            # The zip may contain a single top-level folder (e.g., "VideoDownloaderPro/").
+            # The zip may contain a single top-level folder (e.g., "MediaMagnet/").
             # Detect this and point to the inner folder if present.
             extractedContents = os.listdir(extractDir)
             if len(extractedContents) == 1:

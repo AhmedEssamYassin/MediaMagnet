@@ -1,6 +1,6 @@
 {
-  "version": "3.1.1",
-  "app_name": "Video Downloader Pro",
+  "version": "3.1.2",
+  "app_name": "MediaMagnet",
   "settings": {
     "default_download_path": "",
     "default_quality": "best",

@@ -1,4 +1,4 @@
-name: Build VideoDownloaderPro
+name: Build MediaMagnet
 
 on:
   push:
@@ -71,15 +71,15 @@ jobs:
 
       - name: Verify build output
         run: |
-          if (Test-Path "dist/VideoDownloaderPro/VideoDownloaderPro.exe") {
+          if (Test-Path "dist/MediaMagnet/MediaMagnet.exe") {
             Write-Host "Executable built successfully"
-            Get-Item dist/VideoDownloaderPro/VideoDownloaderPro.exe | Select-Object Name, Length, LastWriteTime
+            Get-Item dist/MediaMagnet/MediaMagnet.exe | Select-Object Name, Length, LastWriteTime
           } else {
             Write-Host "Executable not found in output folder!"
             exit 1
           }
           # Also verify the zip was created
-          $zip = Get-Item dist/VideoDownloaderPro-v*-Windows.zip -ErrorAction SilentlyContinue
+          $zip = Get-Item dist/MediaMagnet-v*-Windows.zip -ErrorAction SilentlyContinue
           if ($zip) {
             Write-Host "Archive created: $($zip.Name) ($([math]::Round($zip.Length / 1MB, 1)) MB)"
           } else {
@@ -90,15 +90,15 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VideoDownloaderPro-Windows
-          path: dist/VideoDownloaderPro-v*-Windows.zip
+          name: MediaMagnet-Windows
+          path: dist/MediaMagnet-v*-Windows.zip
           if-no-files-found: error
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dist/VideoDownloaderPro-v*-Windows.zip
+          files: dist/MediaMagnet-v*-Windows.zip
           draft: false
           prerelease: false
           generate_release_notes: true

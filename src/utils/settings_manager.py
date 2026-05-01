@@ -11,9 +11,9 @@ class SettingsManager:
     
     # User settings file location
     if __import__('os').name == 'nt':  # Windows
-        SETTINGS_DIR = Path.home() / "AppData" / "Local" / "VideoDownloaderPro"
+        SETTINGS_DIR = Path.home() / "AppData" / "Local" / "MediaMagnet"
     else:  # macOS/Linux
-        SETTINGS_DIR = Path.home() / ".config" / "VideoDownloaderPro"
+        SETTINGS_DIR = Path.home() / ".config" / "MediaMagnet"
     
     SETTINGS_FILE = SETTINGS_DIR / "user_settings.json"
     

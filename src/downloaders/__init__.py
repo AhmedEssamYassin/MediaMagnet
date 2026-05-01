@@ -44,7 +44,7 @@ def registerDownloader(downloader: BaseDownloader) -> None:
         downloader: Instance of a BaseDownloader subclass
         
     Example:
-        >>> from video_downloader_pro.downloaders import registerDownloader
+        >>> from media_magnet.downloaders import registerDownloader
         >>> registerDownloader(InstagramDownloader())
     """
     DownloaderFactory.registerDownloader(downloader)

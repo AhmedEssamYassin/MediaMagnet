@@ -1,6 +1,6 @@
 # Assets Directory
 
-This directory contains all static assets used by Video Downloader Pro.
+This directory contains all static assets used by MediaMagnet.
 
 ## Directory Structure
 ```
@@ -95,4 +95,4 @@ nuitka --include-data-dir=assets=assets src/main.py
 
 ## License
 
-All assets in this directory are part of Video Downloader Pro and follow the same license as the main project.
+All assets in this directory are part of MediaMagnet and follow the same license as the main project.
