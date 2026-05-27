@@ -505,6 +505,8 @@ function initApp() {
         const url = urlInput.value.trim();
         if (!url) return;
 
+        currentFetchResult = null;
+
 
         fetchBtn.disabled = true;
         fetchBtn.querySelector('.btn-text').style.display = 'none';

@@ -16,7 +16,7 @@ from packaging import version
 from threading import Thread
 
 class UpdateService:
-    VERSION_URL = "https://gist.githubusercontent.com/AhmedEssamYassin/19fe6b989b7abf1365d81829957fcac1/raw/version.json"
+    VERSION_URL = "https://gist.githubusercontent.com/AhmedEssamYassin/19fe6b989b7abf1365d81829957fcac1/raw/MediaMagnet.json"
     
     @staticmethod
     def checkForUpdates(currentVersion):

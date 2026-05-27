@@ -16,12 +16,11 @@ class FacebookDownloader(BaseDownloader):
     def canHandle(self, url: str) -> bool:
         """Check if URL is a Facebook video"""
         facebookPatterns = [
-            r'(https?://)?(www\.)?facebook\.com/',
+            r'facebook\.com/',
             r'fb\.watch/',
-            r'facebook\.com/watch',
-            r'facebook\.com/.*/(videos|posts)/'
+            r'fb\.gg/'
         ]
-        return any(re.search(pattern, url) for pattern in facebookPatterns)
+        return any(re.search(pattern, url, re.IGNORECASE) for pattern in facebookPatterns)
     
     def getVideoInfo(self, url: str) -> VideoInfo:
         """Fetch Facebook video information"""
@@ -61,7 +60,13 @@ class FacebookDownloader(BaseDownloader):
                     formats=formats if formats else ['best', '720p', '480p', '360p']
                 )
         except Exception as e:
-            raise Exception(f"Failed to fetch Facebook video info: {str(e)}")
+            errorMsg = str(e)
+            if any(word in errorMsg.lower() for word in ["login", "confirm", "redirect", "sign in"]):
+                raise Exception(
+                    "Facebook downloads (especially share links) require authentication. "
+                    "Please ensure you are logged in and configure browser cookies."
+                )
+            raise Exception(f"Failed to fetch Facebook video info: {errorMsg}")
     
     def downloadVideo(self, url: str, outputPath: str, quality: str, 
                       formatType: str, progressCallback, title: str = None):

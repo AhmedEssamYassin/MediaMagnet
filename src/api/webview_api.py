@@ -45,6 +45,9 @@ class WebViewApi:
             from ..data_models import PlaylistInfo
             from ..core.download_manager import DownloadManager
             
+            # Clear previous videoInfo state to prevent desync if this fetch fails
+            self._controller.videoInfo = None
+            
             info = DownloadManager.getVideoInfo(url)
             self._controller.videoInfo = info
             
