@@ -59,7 +59,7 @@
 ## Architecture Overview
 
 ### System Design (UML Diagram)
-![UML Diagram](./docs/system%20design%20UML.svg)
+![UML Diagram](./docs/system-design-uml.svg)
 
 ### Separation of Concerns + SOLID Principles
 
