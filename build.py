@@ -1,10 +1,14 @@
-import PyInstaller.__main__
-import os
-import shutil
+"""
+Build script for packaging MediaMagnet and updater executables.
+"""
+
 import json
-import sys
-import subprocess
+import os
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+
 import update_deps
 
 try:
@@ -251,8 +255,8 @@ def buildOnedir():
     print(f"2/2: Building {APP_NAME} (One Directory) v{VERSION_NUMBER}...")
     print("=" * 60)
     buildArgs = getBaseArgs()
-    buildArgs.append('--onedir')
-    PyInstaller.__main__.run(buildArgs)
+    buildArgs.append("--onedir")
+    subprocess.run([sys.executable, "-m", "PyInstaller"] + buildArgs, check=True)
 
     if UPDATER_PATH.exists():
         destUpdater = DIST_DIR / APP_NAME / "updater.exe"
@@ -267,8 +271,8 @@ def buildOnefile():
     print(f"2/2: Building {APP_NAME} (One File) v{VERSION_NUMBER}...")
     print("=" * 60)
     buildArgs = getBaseArgs()
-    buildArgs.append('--onefile')
-    PyInstaller.__main__.run(buildArgs)
+    buildArgs.append("--onefile")
+    subprocess.run([sys.executable, "-m", "PyInstaller"] + buildArgs, check=True)
     print(f"\nBuild complete! Location: {DIST_DIR / f'{APP_NAME}.exe'}")
 
 def zipOutput():
@@ -332,7 +336,7 @@ def main():
                     buildOnefile()
                 elif userChoice == "3":
                     specFile = createSpecFile()
-                    PyInstaller.__main__.run([str(specFile), '--clean', '--noconfirm'])
+                    subprocess.run([sys.executable, "-m", "PyInstaller", str(specFile), "--clean", "--noconfirm"], check=True)
 
                 print("\n" + "=" * 60)
                 print("Build process completed successfully!")
